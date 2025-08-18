@@ -9,4 +9,4 @@
 - 지창현
 
 # 관련자료
-- https://miro.com/app/board/uXjVJTcI3Vo=/
+- [Miro 보드 링크](https://miro.com/app/board/uXjVJTcI3Vo=/)
