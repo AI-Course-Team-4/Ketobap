@@ -7,3 +7,6 @@
 - 김찬종[팀장]
 - 조수빈
 - 지창현
+
+# 관련자료
+- https://miro.com/app/board/uXjVJTcI3Vo=/
