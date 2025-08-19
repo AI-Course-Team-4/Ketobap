@@ -56,26 +56,27 @@
   3. 각 음식 클릭 시 → 네이버 검색 링크 자동 생성 (예: https://search.naver.com/search.naver?query=강남+샐러디+닭가슴살샐러드)
 
 🤖 AI 활용 방식
-| 단계 | AI 역할 | 사용 기술 | 
-| 음식 키토 점수 산정 | 음식명/재료 기반 점수 계산 | Hugging Face 모델 (text classification or custom scoring) | 
-| 식단 구성 | 사용자 조건 기반 필터링 및 추천 | 클라이언트 로직 + AI 보조 | 
-| 외식 대안 추천 | 키토 점수 기반 음식 추천 | Supabase DB + AI 점수 필터링 | 
 
-
+| 단계             | AI 역할                     | 사용 기술                                       |
+| ---------------- | ---------------------------- | ----------------------------------------------- |
+| 음식 키토 점수 산정 | 음식명/재료 기반 점수 계산   | Hugging Face 모델 (text classification or custom scoring) |
+| 식단 구성         | 사용자 조건 기반 필터링 및 추천 | 클라이언트 로직 + AI 보조                        |
+| 외식 대안 추천    | 키토 점수 기반 음식 추천     | Supabase DB + AI 점수 필터링                    |
 
 🛠 기술 스택
-| 항목 | 기술 | 
-| 프론트엔드 | React (Next.js) | 
-| 백엔드 | 없음 (클라이언트 중심) | 
-| DB | Supabase PostgreSQL | 
-| AI | Hugging Face API (Python or JS SDK) | 
-| 배포 | Vercel | 
-| 외부 연동 | 네이버 검색 링크 생성 (URL 조합) | 
 
-
+| 항목        | 기술                               |
+| ----------- | ---------------------------------- |
+| 프론트엔드   | React (Next.js)                   |
+| 백엔드      | 없음 (클라이언트 중심)             |
+| DB          | Supabase PostgreSQL                |
+| AI          | Hugging Face API (Python or JS SDK) |
+| 배포        | Vercel                             |
+| 외부 연동    | 네이버 검색 링크 생성 (URL 조합)   |
 
 🧬 Supabase 테이블 구조
-foods
+
+```sql
 create table foods (
   id serial primary key,
   name text not null,
@@ -84,11 +85,9 @@ create table foods (
   fat int,
   calories int,
   keto_score int,
-  tags text[]  -- 예: ['아보카도', '치즈']
+  tags text[] -- 예: ['아보카도', '치즈']
 );
 
-
-restaurant_menus
 create table restaurant_menus (
   id serial primary key,
   restaurant_name text not null,
@@ -100,8 +99,6 @@ create table restaurant_menus (
     '강남 ' || restaurant_name || ' ' || menu_name
   ) stored
 );
-
-
 
 📅 개발 일정 (7일 기준)
 | 날짜 | 작업 내용 | 
