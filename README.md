@@ -53,8 +53,7 @@
 - 기능 설명
   1. Supabase restaurant_menus 테이블에서 키토 점수 높은 음식 5개 추천
   2. 사용자 조건에 따라 필터링
-  3. 각 음식 클릭 시 → 네이버 검색 링크 자동 생성
-예: https://search.naver.com/search.naver?query=강남+샐러디+닭가슴살샐러드
+  3. 각 음식 클릭 시 → 네이버 검색 링크 자동 생성 (예: https://search.naver.com/search.naver?query=강남+샐러디+닭가슴살샐러드)
 
 🤖 AI 활용 방식
 | 단계 | AI 역할 | 사용 기술 | 
