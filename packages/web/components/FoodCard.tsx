@@ -8,6 +8,7 @@ interface FoodCardProps {
   food: Food
   mealType: 'breakfast' | 'lunch' | 'dinner'
   className?: string
+  style?: React.CSSProperties
 }
 
 const MEAL_LABELS = {
@@ -22,14 +23,17 @@ const MEAL_TIMES = {
   dinner: '18:00 - 20:00'
 }
 
-export default function FoodCard({ food, mealType, className }: FoodCardProps) {
+export default function FoodCard({ food, mealType, className, style }: FoodCardProps) {
   const totalMacros = food.carbs + food.protein + food.fat
   const carbsPercent = totalMacros > 0 ? (food.carbs / totalMacros) * 100 : 0
   const proteinPercent = totalMacros > 0 ? (food.protein / totalMacros) * 100 : 0
   const fatPercent = totalMacros > 0 ? (food.fat / totalMacros) * 100 : 0
 
   return (
-    <div className={`bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 ${className}`}>
+    <div 
+      className={`bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 ${className}`}
+      style={style}
+    >
       {/* Header */}
       <div className="bg-gradient-to-r from-primary-50 to-green-50 p-4 border-b border-gray-100">
         <div className="flex items-center justify-between">

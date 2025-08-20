@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default function RootLayout({
           <header className="bg-white shadow-sm border-b">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
+                <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer">
                   <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-500 rounded-xl flex items-center justify-center">
                     <span className="text-white font-bold text-lg">🥑</span>
                   </div>
@@ -30,7 +31,7 @@ export default function RootLayout({
                     <h1 className="text-2xl font-bold text-gradient">KetoBab</h1>
                     <p className="text-sm text-gray-600">AI 키토 식단 추천</p>
                   </div>
-                </div>
+                </Link>
                 <nav className="hidden md:flex space-x-6">
                   <a href="/" className="text-gray-600 hover:text-primary-600 font-medium">홈</a>
                   <a href="/preferences" className="text-gray-600 hover:text-primary-600 font-medium">선호도 설정</a>
