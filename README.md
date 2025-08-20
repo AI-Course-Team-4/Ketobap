@@ -339,6 +339,40 @@ git push -u origin feature/음식추천알고리즘개선
 - **Git**: 최신 버전
 - **VS Code**: 권장 에디터
 
+#### Git 설치 방법
+**Windows:**
+1. [Git for Windows](https://git-scm.com/download/win) 다운로드
+2. 설치 프로그램 실행 (기본 설정 사용 권장)
+3. 설치 확인: `git --version`
+
+**Mac:**
+```bash
+# Homebrew 설치된 경우
+brew install git
+
+# 또는 Xcode Command Line Tools
+xcode-select --install
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt update
+sudo apt install git
+```
+
+#### Git 초기 설정
+```bash
+# 사용자 정보 설정
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+
+# 기본 브랜치명 설정
+git config --global init.defaultBranch main
+
+# 설정 확인
+git config --list
+```
+
 #### 권장 VS Code 확장
 - ES7+ React/Redux/React-Native snippets
 - Tailwind CSS IntelliSense

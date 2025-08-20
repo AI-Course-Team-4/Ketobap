@@ -20,21 +20,21 @@ export default function NutritionChart({ nutrition, className }: NutritionChartP
       value: nutrition.carbs,
       percent: carbsPercent,
       color: 'bg-red-500',
-      ideal: '5-10%'
+      ideal: '≤10%'
     },
     {
       name: '단백질',
       value: nutrition.protein,
       percent: proteinPercent,
       color: 'bg-blue-500',
-      ideal: '15-25%'
+      ideal: '~20%'
     },
     {
       name: '지방',
       value: nutrition.fat,
       percent: fatPercent,
       color: 'bg-green-500',
-      ideal: '70-80%'
+      ideal: '~70%'
     }
   ]
 
@@ -104,20 +104,20 @@ export default function NutritionChart({ nutrition, className }: NutritionChartP
 
         {/* 키토 상태 평가 */}
         <div className="mt-4 p-4 rounded-lg border-2 border-dashed">
-          {fatPercent >= 70 && carbsPercent <= 10 ? (
+          {fatPercent >= 70 && carbsPercent <= 10 && proteinPercent >= 15 && proteinPercent <= 25 ? (
             <div className="text-center text-green-700 bg-green-50">
               <p className="font-semibold">🎉 완벽한 키토 비율입니다!</p>
-              <p className="text-sm">지방 비율이 높고 탄수화물이 적어 키토시스에 적합해요</p>
+              <p className="text-sm">이상적인 탄10%/단20%/지70% 비율에 근접해요</p>
             </div>
-          ) : fatPercent >= 60 && carbsPercent <= 15 ? (
+          ) : fatPercent >= 65 && carbsPercent <= 15 ? (
             <div className="text-center text-yellow-700 bg-yellow-50">
               <p className="font-semibold">⚡ 괜찮은 키토 비율이에요</p>
-              <p className="text-sm">지방을 조금 더 늘리고 탄수화물을 줄이면 더 좋아질 거예요</p>
+              <p className="text-sm">탄수화물을 10% 이하로, 지방을 70% 이상으로 조정해보세요</p>
             </div>
           ) : (
             <div className="text-center text-red-700 bg-red-50">
               <p className="font-semibold">💪 키토 비율 개선이 필요해요</p>
-              <p className="text-sm">지방 비율을 높이고 탄수화물을 줄여보세요</p>
+              <p className="text-sm">목표: 탄수화물 ≤10%, 단백질 ~20%, 지방 ~70%</p>
             </div>
           )}
         </div>

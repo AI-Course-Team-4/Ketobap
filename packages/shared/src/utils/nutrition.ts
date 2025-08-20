@@ -40,6 +40,7 @@ export class NutritionUtils {
 
   /**
    * 키토 다이어트 기준 점수를 계산합니다
+   * 이상적 비율: 탄수화물 10%, 단백질 20%, 지방 70%
    */
   static calculateKetoScore(nutrition: NutritionInfo): number {
     const { carbs, protein, fat } = nutrition;
@@ -51,40 +52,48 @@ export class NutritionUtils {
     const fatRatio = (fat / totalMacros) * 100;
     const proteinRatio = (protein / totalMacros) * 100;
 
-    // 키토 이상적 비율: 지방 70-80%, 단백질 15-25%, 탄수화물 5-10%
+    // 새로운 키토 이상적 비율: 지방 70%, 단백질 20%, 탄수화물 10%
     let score = 0;
 
-    // 지방 비율 점수 (70-80% 이상적)
+    // 지방 비율 점수 (70% 이상적, 최대 40점)
     if (fatRatio >= 70 && fatRatio <= 80) {
-      score += 40;
-    } else if (fatRatio >= 60 && fatRatio < 70) {
-      score += 30;
+      score += 40; // 이상적
+    } else if (fatRatio >= 65 && fatRatio < 70) {
+      score += 35; // 매우 좋음
+    } else if (fatRatio >= 60 && fatRatio < 65) {
+      score += 30; // 좋음
     } else if (fatRatio >= 50 && fatRatio < 60) {
-      score += 20;
+      score += 20; // 보통
     } else {
-      score += 10;
+      score += 10; // 부족
     }
 
-    // 탄수화물 비율 점수 (낮을수록 좋음)
+    // 탄수화물 비율 점수 (10% 이하 이상적, 최대 35점)
     if (carbsRatio <= 5) {
-      score += 35;
+      score += 35; // 최적
     } else if (carbsRatio <= 10) {
-      score += 25;
+      score += 30; // 이상적
     } else if (carbsRatio <= 15) {
-      score += 15;
+      score += 20; // 허용
+    } else if (carbsRatio <= 20) {
+      score += 10; // 높음
     } else {
-      score += 5;
+      score += 5; // 매우 높음
     }
 
-    // 단백질 비율 점수 (15-25% 이상적)
-    if (proteinRatio >= 15 && proteinRatio <= 25) {
-      score += 25;
+    // 단백질 비율 점수 (20% 이상적, 최대 25점)
+    if (proteinRatio >= 18 && proteinRatio <= 22) {
+      score += 25; // 이상적
+    } else if (proteinRatio >= 15 && proteinRatio < 18) {
+      score += 22; // 약간 부족
+    } else if (proteinRatio >= 22 && proteinRatio <= 25) {
+      score += 22; // 약간 높음
     } else if (proteinRatio >= 10 && proteinRatio < 15) {
-      score += 20;
+      score += 18; // 부족
     } else if (proteinRatio >= 25 && proteinRatio <= 30) {
-      score += 20;
+      score += 15; // 높음
     } else {
-      score += 10;
+      score += 10; // 매우 부족하거나 과다
     }
 
     return Math.min(100, score);
