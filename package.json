@@ -1,0 +1,11 @@
+{
+  "name": "ketobab",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:web": "cd packages/web && npm run dev",
+    "dev:mobile": "cd packages/mobile && npm start",
+    "build:web": "cd packages/web && npm run build",
+    "install:all": "cd packages/shared && npm install && cd ../web && npm install && cd ../mobile && npm install"
+  }
+}

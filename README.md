@@ -1,124 +1,412 @@
-# miniProject-Team4-AICourse
-심화_생성형 AI활용 인재양성 과정 미니 프로젝트
+# 🥑 KetoBab - AI 기반 키토 식단 & 외식 추천 서비스
 
-# 팀원
-- 김수환
-- 김성은
-- 김찬종[팀장]
-- 조수빈
-- 지창현
+개인의 선호도, 알레르기 정보를 기반으로 맞춤형 키토 식단을 추천하고, 강남 지역의 키토 친화적인 음식점을 안내하는 AI 기반 크로스플랫폼 서비스입니다.
 
-# 관련자료
-- [Miro 보드 링크](https://miro.com/app/board/uXjVJTcI3Vo=/)
-- [Notion 링크](https://www.notion.so/AI-X-9-4-244e5ada13da80bfb568d9e5b2eb8a12?p=253e5ada13da800aada4e10cbb5f08fa&pm=s)
+## ✨ 주요 기능
 
+- **🤖 AI 맞춤 추천**: 개인 선호도와 알레르기를 고려한 키토 식단 추천
+- **📊 영양 분석**: 실시간 탄단지 비율 및 키토 점수 분석
+- **🗺️ 외식 가이드**: 강남 지역 키토 친화적 음식점 및 메뉴 추천  
+- **🔒 프라이버시**: 회원가입 없이 사용 가능한 비회원 기반 서비스
+- **📱 크로스플랫폼**: 웹과 모바일 앱 지원
 
-# 📌 PRD – AI 기반 키토 식단 & 외식 추천 웹 서비스 (Supabase + Hugging Face 활용)
-🧭 프로젝트 개요
-- 프로젝트명: KetoBab
-- 목표: 사용자의 선호/비선호/알레르기 정보를 기반으로 키토 식단을 추천하고, 식단 유지가 어려운 경우 강남역 근처 키토 친화 음식점 메뉴를 추천하는 AI 기반 웹 서비스
-- 특징:
-  1. 사용자 정보 저장 없음 (비회원 기반)
-  2. Supabase를 통한 음식/음식점 데이터 관리
-  3. Hugging Face 모델을 활용한 키토 점수 자동 산정
-  4. 네이버 검색 링크 자동 생성으로 외식 연결
+## 🏗️ 프로젝트 구조
 
-🧩 주요 기능 및 페이지 구성
+```
+ketobab/
+├── packages/
+│   ├── shared/           # 웹/앱 공통 로직
+│   │   ├── api/         # Supabase API
+│   │   ├── ai/          # Hugging Face 연동
+│   │   ├── types/       # TypeScript 타입
+│   │   └── utils/       # 공통 유틸리티
+│   ├── web/             # Next.js 웹 앱
+│   │   ├── app/         # App Router 페이지
+│   │   ├── components/  # React 컴포넌트
+│   │   └── styles/      # Tailwind CSS
+│   └── mobile/          # React Native 앱 (향후 구현)
+├── supabase/            # DB 스키마 및 설정
+└── package.json
+```
 
-1️⃣ 개인정보 입력 페이지
-- 목적:
-사용자의 식단 추천을 위한 조건 수집
+## 🛠️ 기술 스택
 
-- 기능 설명:
-  1. Select Input 기반으로 선호 식품, 비선호 식품, 알레르기 재료 선택
-  2. “기타” 선택 시 텍스트 입력 필드 활성화
-  3. 유효성 검사: 필수 항목 누락 방지, 텍스트 길이 제한
-- 데이터 처리 방식:
-  1. 입력값은 클라이언트 상태로만 유지 (DB 저장 없음)
-  2. 이후 식단 추천 시 필터링 조건으로 활용
+### 웹 서비스
+- **프론트엔드**: Next.js 14, React 18, TypeScript
+- **스타일링**: Tailwind CSS
+- **상태관리**: Zustand
+- **배포**: Vercel
 
-2️⃣ 오늘의 추천 식단 페이지
-- 목적
-  1. 사용자 조건에 맞는 아침/점심/저녁 키토 식단 추천
--기능 설명
-  1. Supabase foods 테이블에서 음식 조회
-  2. Hugging Face 모델을 통해 각 음식의 키토 점수 산정
-  3. 사용자 조건에 따라 음식 필터링
-  4. 각 끼니별 추천 메뉴 1개 표시
-  5. 탄단지 비율 및 칼로리 정보 제공
-  6. “먹기 어려워요” 버튼 → 외식 추천 페이지로 이동
+### 데이터베이스 & API
+- **DB**: Supabase PostgreSQL
+- **AI**: Hugging Face API
+- **검색**: 네이버 검색 API
 
-3️⃣ 외식 추천 페이지
-- 목적
-  1. 식단 유지가 어려운 경우, 강남역 근처 키토 친화 음식 추천
-- 기능 설명
-  1. Supabase restaurant_menus 테이블에서 키토 점수 높은 음식 5개 추천
-  2. 사용자 조건에 따라 필터링
-  3. 각 음식 클릭 시 → 네이버 검색 링크 자동 생성 (예: https://search.naver.com/search.naver?query=강남+샐러디+닭가슴살샐러드)
+### 모바일 (향후 구현)
+- **프레임워크**: React Native with Expo
+- **네비게이션**: React Navigation
+- **스타일링**: NativeWind
 
-🤖 AI 활용 방식
+## 🚀 빠른 시작
 
-| 단계             | AI 역할                     | 사용 기술                                       |
-| ---------------- | ---------------------------- | ----------------------------------------------- |
-| 음식 키토 점수 산정 | 음식명/재료 기반 점수 계산   | Hugging Face 모델 (text classification or custom scoring) |
-| 식단 구성         | 사용자 조건 기반 필터링 및 추천 | 클라이언트 로직 + AI 보조                        |
-| 외식 대안 추천    | 키토 점수 기반 음식 추천     | Supabase DB + AI 점수 필터링                    |
+### 1. 프로젝트 클론
 
-🛠 기술 스택
+```bash
+git clone https://github.com/your-username/ketobab.git
+cd ketobab
+```
 
-| 항목        | 기술                               |
-| ----------- | ---------------------------------- |
-| 프론트엔드   | React (Next.js)                   |
-| 백엔드      | 없음 (클라이언트 중심)             |
-| DB          | Supabase PostgreSQL                |
-| AI          | Hugging Face API (Python or JS SDK) |
-| 배포        | Vercel                             |
-| 외부 연동    | 네이버 검색 링크 생성 (URL 조합)   |
+### 2. 의존성 설치
 
-🧬 Supabase 테이블 구조
+```bash
+npm install
+```
 
+### 3. Supabase 설정
+
+1. [Supabase](https://supabase.com)에서 새 프로젝트 생성
+2. `supabase/schema.sql` 파일을 실행하여 테이블 생성
+3. `supabase/seed.sql` 파일을 실행하여 샘플 데이터 추가
+
+### 4. 환경 변수 설정
+
+```bash
+# packages/web/ 디렉토리에서
+cp env.example .env.local
+```
+
+`.env.local` 파일을 편집하여 다음 값들을 설정:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+HUGGING_FACE_TOKEN=your-hugging-face-token  # 선택사항
+```
+
+### 5. 개발 서버 실행
+
+```bash
+# 웹 앱 실행
+npm run dev:web
+
+# 또는 packages/web 디렉토리에서
+cd packages/web
+npm run dev
+```
+
+브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 확인하세요.
+
+## 📊 데이터베이스 스키마
+
+### `foods` 테이블
 ```sql
-create table foods (
-  id serial primary key,
-  name text not null,
-  carbs int,
-  protein int,
-  fat int,
-  calories int,
-  keto_score int,
-  tags text[] -- 예: ['아보카도', '치즈']
-);
-
-create table restaurant_menus (
-  id serial primary key,
-  restaurant_name text not null,
-  menu_name text not null,
-  description text,
-  keto_score int,
-  address text,
-  naver_search_keyword text generated always as (
-    '강남 ' || restaurant_name || ' ' || menu_name
-  ) stored
+CREATE TABLE foods (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  carbs INTEGER NOT NULL,
+  protein INTEGER NOT NULL,
+  fat INTEGER NOT NULL,
+  calories INTEGER NOT NULL,
+  keto_score INTEGER NOT NULL,
+  tags TEXT[],
+  created_at TIMESTAMP DEFAULT NOW()
 );
 ```
 
-## 📅 개발 일정 (7일 기준)
+### `restaurant_menus` 테이블
+```sql
+CREATE TABLE restaurant_menus (
+  id SERIAL PRIMARY KEY,
+  restaurant_name TEXT NOT NULL,
+  menu_name TEXT NOT NULL,
+  description TEXT,
+  keto_score INTEGER NOT NULL,
+  address TEXT,
+  phone TEXT,
+  latitude DECIMAL(10,8),
+  longitude DECIMAL(11,8),
+  naver_search_keyword TEXT GENERATED ALWAYS AS (
+    '강남 ' || restaurant_name || ' ' || menu_name
+  ) STORED,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-| 날짜   | 작업 내용                          |
-| ------ | ---------------------------------- |
-| Day 1  | 프로젝트 셋업, Supabase 테이블 생성 |
-| Day 2  | 개인정보 입력 페이지 개발           |
-| Day 3  | Hugging Face 모델 연동 및 음식 점수 산정 |
-| Day 4  | 식단 추천 페이지 개발              |
-| Day 5  | 외식 추천 페이지 개발 및 링크 생성  |
-| Day 6  | UI 개선, 반응형 적용               |
-| Day 7  | 최종 테스트, 배포                  |
+## 🔧 주요 스크립트
 
+```bash
+# 개발
+npm run dev:web          # 웹 앱 개발 서버
+npm run dev:mobile       # 모바일 앱 개발 서버 (향후)
 
+# 빌드
+npm run build:web        # 웹 앱 빌드
+npm run build:mobile     # 모바일 앱 빌드 (향후)
 
+# 데이터베이스
+npm run db:setup         # Supabase 스키마 적용
+npm run db:seed          # 샘플 데이터 추가
+```
 
-✅ 성공 지표
-- 식단 추천 정확도 및 만족도 > 80%
-- 외식 추천 클릭률 > 60%
-- 네이버 링크 정상 연결률 100%
-- 페이지 로딩 시간 < 3초
+## 🎯 사용 방법
+
+### 1. 개인 선호도 설정
+- 선호하는 음식, 비선호하는 음식, 알레르기 정보 입력
+- "기타" 선택 시 직접 입력 가능
+
+### 2. AI 식단 추천 받기
+- 개인 조건에 맞는 아침/점심/저녁 키토 식단 추천
+- 실시간 영양소 분석 및 키토 점수 확인
+- 일일 총 영양 정보 제공
+
+### 3. 외식 추천 이용
+- 강남 지역 키토 친화적 음식점 및 메뉴 탐색
+- 키토 점수 필터링 및 개인 조건 적용
+- 네이버 검색 및 전화 연결 기능
+
+## 🤖 AI 기능
+
+### 키토 점수 계산
+- 음식명과 재료를 분석하여 키토 다이어트 적합도 점수 산정
+- Hugging Face API 연동 (선택사항)
+- 기본 키워드 기반 분석 지원
+
+### 맞춤 추천 알고리즘
+- 사용자 선호도 + 키토 점수 조합
+- 알레르기 및 비선호 음식 자동 제외
+- 중복 방지 다양성 보장
+
+## 🔐 프라이버시 & 보안
+
+- **비회원 서비스**: 개인정보 수집 없음
+- **클라이언트 저장**: 선호도는 브라우저에만 임시 저장
+- **데이터 암호화**: Supabase 자동 암호화
+- **HTTPS**: 모든 통신 암호화
+
+## 🚧 향후 계획
+
+### Phase 1: 웹 서비스 고도화
+- [ ] 사용자 피드백 수집 및 반영
+- [ ] AI 모델 성능 개선
+- [ ] 더 많은 음식 및 음식점 데이터 추가
+
+### Phase 2: 모바일 앱 개발
+- [ ] React Native 앱 구현
+- [ ] 푸시 알림 (식사 시간 리마인더)
+- [ ] 오프라인 캐시 기능
+- [ ] 카메라 연동 (음식 사진 분석)
+
+### Phase 3: 고급 기능
+- [ ] 위치 기반 근처 음식점 추천
+- [ ] 개인별 키토 진행 상황 추적
+- [ ] 소셜 기능 (식단 공유)
+- [ ] 영양사 상담 연결
+
+## 👥 팀 협업 가이드
+
+### 새 팀원 온보딩
+
+#### 1. 프로젝트 클론 및 설정
+```bash
+# 레포지토리 클론
+git clone https://github.com/soohwan93/miniProject-Team4-AICourse.git
+cd miniProject-Team4-AICourse
+
+# dev 브랜치로 전환 (메인 개발 브랜치)
+git checkout dev
+git pull origin dev
+
+# 의존성 설치
+npm install
+
+# 환경 변수 설정
+cp packages/web/env.example packages/web/.env.local
+# .env.local 파일을 편집하여 Supabase 설정 추가
+```
+
+#### 2. 개발 환경 실행
+```bash
+# 웹 개발 서버 실행
+npm run dev:web
+# 또는
+cd packages/web && npm run dev
+```
+
+### 브랜치 전략
+
+#### 브랜치 구조
+- `main`: 프로덕션 배포용 (건드리지 않음)
+- `dev`: 메인 개발 브랜치 (모든 기능 통합)
+- `feature/기능명`: 새로운 기능 개발
+- `fix/버그명`: 버그 수정
+- `docs/문서명`: 문서 업데이트
+
+#### 작업 플로우
+```bash
+# 1. dev 브랜치에서 최신 코드 받기
+git checkout dev
+git pull origin dev
+
+# 2. 새 기능 브랜치 생성
+git checkout -b feature/음식추천알고리즘개선
+
+# 3. 개발 작업 수행
+# ... 코딩 ...
+
+# 4. 변경사항 커밋
+git add .
+git commit -m "feat: 키토 점수 계산 알고리즘 개선
+
+- 탄수화물 비율 가중치 조정
+- 섬유질 계산 로직 추가
+- 키토 친화적 재료 키워드 확장"
+
+# 5. 브랜치 푸시
+git push -u origin feature/음식추천알고리즘개선
+
+# 6. GitHub에서 Pull Request 생성
+# dev 브랜치로 PR 요청
+```
+
+### 커밋 메시지 규칙
+
+#### 커밋 타입
+- `feat`: 새로운 기능 추가
+- `fix`: 버그 수정
+- `docs`: 문서 수정
+- `style`: 코드 포맷팅, 세미콜론 누락 등
+- `refactor`: 코드 리팩토링
+- `test`: 테스트 코드 추가/수정
+- `chore`: 빌드 스크립트 수정, 패키지 매니저 설정 등
+
+#### 커밋 메시지 형식
+```
+타입: 요약 (50자 이내)
+
+상세 설명 (선택사항)
+- 변경사항 1
+- 변경사항 2
+- 변경사항 3
+```
+
+### Pull Request 가이드
+
+#### PR 생성 전 체크리스트
+- [ ] 최신 dev 브랜치와 충돌 없는지 확인
+- [ ] 로컬에서 정상 빌드 및 실행 확인
+- [ ] 커밋 메시지가 규칙에 맞는지 확인
+- [ ] 관련 없는 파일은 제외했는지 확인
+
+#### PR 템플릿
+```markdown
+## 📋 변경사항
+- 구현한 기능이나 수정한 내용 요약
+
+## 🧪 테스트
+- [ ] 로컬에서 정상 동작 확인
+- [ ] 빌드 오류 없음
+- [ ] 기존 기능에 영향 없음
+
+## 📸 스크린샷 (UI 변경시)
+- 변경 전/후 비교 이미지
+
+## 📝 추가 설명
+- 기타 고려사항이나 리뷰 요청사항
+```
+
+### 코드 리뷰 가이드
+
+#### 리뷰어 체크포인트
+1. **기능성**: 의도한 대로 동작하는가?
+2. **코드 품질**: 읽기 쉽고 유지보수 가능한가?
+3. **성능**: 불필요한 렌더링이나 API 호출은 없는가?
+4. **보안**: 민감한 정보 노출은 없는가?
+5. **일관성**: 프로젝트 코딩 컨벤션을 따르는가?
+
+#### 리뷰 코멘트 예시
+```
+💡 제안: 이 함수를 utils로 분리하면 재사용성이 높아질 것 같습니다.
+🐛 버그: null 체크가 필요할 것 같습니다.
+❓ 질문: 이 로직의 의도를 설명해주실 수 있나요?
+👍 좋음: 깔끔한 구현이네요!
+```
+
+### 개발 환경 설정
+
+#### 필수 도구
+- **Node.js**: v18 이상
+- **npm**: v8 이상  
+- **Git**: 최신 버전
+- **VS Code**: 권장 에디터
+
+#### 권장 VS Code 확장
+- ES7+ React/Redux/React-Native snippets
+- Tailwind CSS IntelliSense
+- TypeScript Importer
+- GitLens
+- Prettier
+- ESLint
+
+#### 패키지 구조 이해
+```
+packages/
+├── shared/     # 공통 로직 (API, 타입, 유틸)
+├── web/        # Next.js 웹 애플리케이션
+└── mobile/     # React Native 앱 (향후 구현)
+```
+
+### 트러블슈팅
+
+#### 자주 발생하는 문제
+1. **의존성 설치 오류**
+   ```bash
+   # node_modules 삭제 후 재설치
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+2. **빌드 오류**
+   ```bash
+   # 타입 체크
+   npm run type-check
+   
+   # 린트 체크
+   npm run lint
+   ```
+
+3. **환경 변수 문제**
+   - `.env.local` 파일 존재 확인
+   - Supabase URL/KEY 정확성 확인
+   - 서버 재시작 필요
+
+#### 도움 요청 방법
+1. GitHub Issues에 버그 리포트/질문 등록
+2. 팀 채팅방에 질문
+3. 코드 리뷰에서 질문 코멘트
+
+## 🤝 기여하기
+
+### 외부 기여자용
+1. Fork 프로젝트
+2. Feature 브랜치 생성 (`git checkout -b feature/AmazingFeature`)
+3. 변경사항 커밋 (`git commit -m 'Add some AmazingFeature'`)
+4. 브랜치에 Push (`git push origin feature/AmazingFeature`)
+5. Pull Request 오픈
+
+### 팀 멤버용
+위의 "팀 협업 가이드" 섹션을 참고하세요.
+
+## 📝 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참고하세요.
+
+## 📞 문의
+
+프로젝트와 관련된 문의사항이 있으시면 다음으로 연락해주세요:
+
+- **이메일**: contact@ketobab.com
+- **이슈**: [GitHub Issues](https://github.com/your-username/ketobab/issues)
+
+---
+
+**KetoBab** - 건강한 키토 라이프를 위한 똑똑한 선택 🥑✨
