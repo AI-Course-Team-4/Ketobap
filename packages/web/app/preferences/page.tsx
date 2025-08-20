@@ -14,7 +14,7 @@ const FOOD_OPTIONS = [
   { value: '치즈', label: '🧀 치즈' },
   { value: '계란', label: '🥚 계란' },
   { value: '견과류', label: '🥜 견과류' },
-  { value: '올리브오일', label: '🫒 올리브오일' },
+  { value: '올리브오일', label: '🧴 올리브오일' },
   { value: '닭가슴살', label: '🐔 닭가슴살' },
   { value: '브로콜리', label: '🥦 브로콜리' },
   { value: '시금치', label: '🌿 시금치' },
@@ -33,7 +33,7 @@ const ALLERGY_OPTIONS = [
   { value: '유제품', label: '🥛 유제품' },
   { value: '해산물', label: '🦐 해산물' },
   { value: '계란', label: '🥚 계란' },
-  { value: '콩', label: '🫘 콩류' },
+  { value: '콩', label: '🌱 콩류' },
   { value: '글루텐', label: '🌾 글루텐' },
   { value: '기타', label: '➕ 기타 (직접 입력)' }
 ]
