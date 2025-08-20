@@ -1,0 +1,36 @@
+# === env files (중요) ===
+**/.env
+**/.env.*
+*.env
+*.env.*
+.envrc
+# 예시는 허용해서 팀 공유
+!.env.example
+!.env.*.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.venv/
+venv/
+.env/          # 가상환경 폴더 이름을 .env로 쓰는 경우 방지
+
+# Tools / 테스트 캐시
+.alembic/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# (풀스택일 경우)
+node_modules/
+dist/
+build/
