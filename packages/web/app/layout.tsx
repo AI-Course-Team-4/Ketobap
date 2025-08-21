@@ -54,7 +54,7 @@ export default function RootLayout({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center">
                 <p className="text-gray-400">
-                  © 2024 KetoBab. AI 기반 키토 식단 추천 서비스
+                  © 2025 KetoBab. AI 기반 키토 식단 추천 서비스
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
                   건강한 키토 라이프를 위한 똑똑한 선택
