@@ -129,20 +129,20 @@ export default function FoodCard({ food, mealType, className, style }: FoodCardP
 
         {/* Keto Status */}
         <div className="mt-4 pt-4 border-t border-gray-100">
-          {fatPercent >= 70 && carbsPercent <= 10 ? (
+          {food.keto_score >= 80 ? (
             <div className="flex items-center space-x-2 text-green-600">
               <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              <span className="text-sm font-medium">키토 최적 비율</span>
+              <span className="text-sm font-medium">키토 우수</span>
             </div>
-          ) : fatPercent >= 60 && carbsPercent <= 15 ? (
+          ) : food.keto_score >= 60 ? (
             <div className="flex items-center space-x-2 text-yellow-600">
               <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
-              <span className="text-sm font-medium">키토 양호 비율</span>
+              <span className="text-sm font-medium">키토 보통</span>
             </div>
           ) : (
             <div className="flex items-center space-x-2 text-red-600">
               <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-              <span className="text-sm font-medium">키토 개선 필요</span>
+              <span className="text-sm font-medium">키토 부족</span>
             </div>
           )}
         </div>

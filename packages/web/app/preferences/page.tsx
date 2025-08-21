@@ -22,10 +22,10 @@ const FOOD_OPTIONS = [
   { value: '베이컨', label: '🥓 베이컨' },
   { value: '새우', label: '🦐 새우' },
   // 기타 음식
+  { value: '기타', label: '➕ 기타 (직접 입력)' },
   { value: '토마토', label: '🍅 토마토' },
   { value: '양상추', label: '🥬 양상추' },
   { value: '오이', label: '🥒 오이' },
-  { value: '기타', label: '➕ 기타 (직접 입력)' }
 ]
 
 const ALLERGY_OPTIONS = [
@@ -35,24 +35,32 @@ const ALLERGY_OPTIONS = [
   { value: '계란', label: '🥚 계란' },
   { value: '콩', label: '🌱 콩류' },
   { value: '글루텐', label: '🌾 글루텐' },
-  { value: '기타', label: '➕ 기타 (직접 입력)' }
+  { value: '기타', label: '➕ 기타 (직접 입력)' },
 ]
 
 export default function PreferencesPage() {
   const router = useRouter()
   const { preferences, setPreferences } = useUserStore()
-  
+
   const [formData, setFormData] = useState<UserPreferences>(preferences)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // 필터링된 옵션: 상대 목록에 이미 선택된 음식 제외 (단, '기타'는 포함)
+  const preferredOptions = FOOD_OPTIONS.filter(
+    (o) => !formData.dislikedFoods.includes(o.value) || o.value === '기타'
+  )
+  const dislikedOptions = FOOD_OPTIONS.filter(
+    (o) => !formData.preferredFoods.includes(o.value) || o.value === '기타'
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+
     try {
       // 사용자 선호도 저장
       setPreferences(formData)
-      
+
       // 식단 추천 페이지로 이동
       router.push('/recommendations')
     } catch (error) {
@@ -62,13 +70,32 @@ export default function PreferencesPage() {
     }
   }
 
+  // 선호/비선호 변경 시 상대 목록에 중복된 항목 제거
+  const handlePreferredChange = (value: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      preferredFoods: value,
+      dislikedFoods: prev.dislikedFoods.filter((food) => !value.includes(food)),
+    }))
+  }
+
+  const handleDislikedChange = (value: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      dislikedFoods: value,
+      preferredFoods: prev.preferredFoods.filter((food) => !value.includes(food)),
+    }))
+  }
+
   const hasBasicPreferences = () => {
-    return formData.preferredFoods.length > 0 || 
-           formData.dislikedFoods.length > 0 || 
-           formData.allergies.length > 0 ||
-           formData.customPreferred ||
-           formData.customDisliked ||
-           formData.customAllergies
+    return (
+      formData.preferredFoods.length > 0 ||
+      formData.dislikedFoods.length > 0 ||
+      formData.allergies.length > 0 ||
+      formData.customPreferred ||
+      formData.customDisliked ||
+      formData.customAllergies
+    )
   }
 
   return (
@@ -104,18 +131,20 @@ export default function PreferencesPage() {
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">선호하는 음식</h2>
-                <p className="text-sm text-gray-600">자주 드시거나 좋아하는 음식을 선택해주세요</p>
+                <p className="text-sm text-gray-600">
+                  자주 드시거나 좋아하는 음식을 선택해주세요
+                </p>
               </div>
             </div>
-            
+
             <MultiSelect
-              options={FOOD_OPTIONS}
+              options={preferredOptions}
               value={formData.preferredFoods}
-              onChange={(value) => setFormData(prev => ({ ...prev, preferredFoods: value }))}
+              onChange={handlePreferredChange}
               placeholder="선호하는 음식을 선택해주세요"
               className="mb-4"
             />
-            
+
             {formData.preferredFoods.includes('기타') && (
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -124,7 +153,12 @@ export default function PreferencesPage() {
                 <input
                   type="text"
                   value={formData.customPreferred || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, customPreferred: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      customPreferred: e.target.value,
+                    }))
+                  }
                   placeholder="예: 랍스터, 트러플, 캐비어"
                   className="input-field"
                 />
@@ -140,18 +174,20 @@ export default function PreferencesPage() {
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">비선호하는 음식</h2>
-                <p className="text-sm text-gray-600">드시고 싶지 않거나 싫어하는 음식을 선택해주세요</p>
+                <p className="text-sm text-gray-600">
+                  드시고 싶지 않거나 싫어하는 음식을 선택해주세요
+                </p>
               </div>
             </div>
-            
+
             <MultiSelect
-              options={FOOD_OPTIONS}
+              options={dislikedOptions}
               value={formData.dislikedFoods}
-              onChange={(value) => setFormData(prev => ({ ...prev, dislikedFoods: value }))}
+              onChange={handleDislikedChange}
               placeholder="비선호하는 음식을 선택해주세요"
               className="mb-4"
             />
-            
+
             {formData.dislikedFoods.includes('기타') && (
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -160,7 +196,12 @@ export default function PreferencesPage() {
                 <input
                   type="text"
                   value={formData.customDisliked || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, customDisliked: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      customDisliked: e.target.value,
+                    }))
+                  }
                   placeholder="예: 매운음식, 생선, 향신료"
                   className="input-field"
                 />
@@ -176,18 +217,22 @@ export default function PreferencesPage() {
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">알레르기 정보</h2>
-                <p className="text-sm text-gray-600">알레르기가 있는 식품을 선택해주세요 (중요)</p>
+                <p className="text-sm text-gray-600">
+                  알레르기가 있는 식품을 선택해주세요 (중요)
+                </p>
               </div>
             </div>
-            
+
             <MultiSelect
               options={ALLERGY_OPTIONS}
               value={formData.allergies}
-              onChange={(value) => setFormData(prev => ({ ...prev, allergies: value }))}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, allergies: value }))
+              }
               placeholder="알레르기가 있는 식품을 선택해주세요"
               className="mb-4"
             />
-            
+
             {formData.allergies.includes('기타') && (
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -196,19 +241,24 @@ export default function PreferencesPage() {
                 <input
                   type="text"
                   value={formData.customAllergies || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, customAllergies: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      customAllergies: e.target.value,
+                    }))
+                  }
                   placeholder="예: 파인애플, 키위, 복숭아"
                   className="input-field"
                 />
               </div>
             )}
-            
+
             <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
               <div className="flex items-start space-x-2">
                 <Info className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
                 <p className="text-sm text-orange-800">
-                  알레르기 정보는 식단 추천 시 해당 식품을 완전히 제외하는데 사용됩니다. 
-                  정확한 정보를 입력해주세요.
+                  알레르기 정보는 식단 추천 시 해당 식품을 완전히 제외하는데
+                  사용됩니다. 정확한 정보를 입력해주세요.
                 </p>
               </div>
             </div>
@@ -237,7 +287,7 @@ export default function PreferencesPage() {
                 </>
               )}
             </button>
-            
+
             {!hasBasicPreferences() && (
               <p className="text-center text-sm text-gray-500">
                 하나 이상의 선호도를 설정해주세요
@@ -248,7 +298,9 @@ export default function PreferencesPage() {
 
         {/* Tips */}
         <div className="mt-12 p-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-xl border border-blue-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">💡 더 정확한 추천을 위한 팁</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            💡 더 정확한 추천을 위한 팁
+          </h3>
           <ul className="space-y-2 text-sm text-gray-700">
             <li className="flex items-start space-x-2">
               <span className="text-blue-600">•</span>
@@ -268,3 +320,4 @@ export default function PreferencesPage() {
     </div>
   )
 }
+  
