@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ketobab.app"
@@ -25,18 +23,9 @@
       },
       "package": "com.ketobab.app"
     },
-    "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
-    },
-    "plugins": [
-      "expo-router"
-    ],
+    "plugins": [],
     "scheme": "ketobab",
-    "extra": {
-      "router": {
-        "origin": false
-      }
-    }
+    "extra": { "router": { "origin": false } },
+    "platforms": ["ios", "android"]
   }
 }

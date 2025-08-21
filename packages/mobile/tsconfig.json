@@ -1,10 +1,32 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "target": "ESNext",
+    "lib": [
+      "ESNext"
+    ],
+    "jsx": "react-jsx",
     "strict": true,
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "types": [
+      "react",
+      "react-native",
+      "nativewind/types"
+    ],
     "paths": {
-      "@/*": ["./*"],
-      "@ketobab/shared": ["../shared/src"]
+      "@/*": [
+        "./*"
+      ],
+      "@ketobab/shared/*": [
+        "../shared/src/*"
+      ]
     }
-  }
+  },
+  "include": [
+    "app/**/*",
+    "types/**/*"
+  ],
+  "extends": "expo/tsconfig.base"
 }
