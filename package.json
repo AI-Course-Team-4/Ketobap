@@ -7,5 +7,8 @@
     "dev:mobile": "cd packages/mobile && npm start",
     "build:web": "cd packages/web && npm run build",
     "install:all": "cd packages/shared && npm install && cd ../web && npm install && cd ../mobile && npm install"
+  },
+  "dependencies": {
+    "expo": "^53.0.20"
   }
 }

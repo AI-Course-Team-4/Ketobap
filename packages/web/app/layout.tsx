@@ -7,7 +7,11 @@ export const metadata: Metadata = {
   description: '개인 맞춤형 키토 식단과 강남 키토 친화 음식점을 AI로 추천해드립니다',
   keywords: '키토, 다이어트, 식단, 추천, AI, 강남, 음식점',
   authors: [{ name: 'KetoBab Team' }],
-  viewport: 'width=device-width, initial-scale=1',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
   themeColor: '#0284c7',
 }
 
