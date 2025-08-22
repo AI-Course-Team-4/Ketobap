@@ -7,9 +7,10 @@ import { MapPin, Phone, ExternalLink, Star } from 'lucide-react'
 interface RestaurantCardProps {
   menu: RestaurantMenu
   className?: string
+  style?: React.CSSProperties
 }
 
-export default function RestaurantCard({ menu, className }: RestaurantCardProps) {
+export default function RestaurantCard({ menu, className, style }: RestaurantCardProps) {
   const handleNaverSearch = () => {
     const searchUrl = RestaurantsAPI.generateNaverSearchUrl(menu)
     window.open(searchUrl, '_blank')
@@ -22,7 +23,10 @@ export default function RestaurantCard({ menu, className }: RestaurantCardProps)
   }
 
   return (
-    <div className={`bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${className}`}>
+    <div 
+      className={`bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${className}`}
+      style={style}
+    >
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 border-b border-gray-100">
         <div className="flex items-start justify-between">
