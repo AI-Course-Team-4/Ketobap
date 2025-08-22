@@ -73,15 +73,15 @@ export default function GPTMealCard({ mealItem, mealType, className = '' }: GPTM
             <div className="text-sm text-gray-500 mb-1">칼로리</div>
             <div className="font-semibold text-gray-900">{calories}</div>
           </div>
-          <div className="text-center">
+          <div className="text-center border-l border-gray-200 pl-3">
             <div className="text-sm text-gray-500 mb-1">탄수화물</div>
             <div className="font-semibold text-orange-600">{mealItem.carbs}</div>
           </div>
-          <div className="text-center">
+          <div className="text-center border-l border-gray-200 pl-3">
             <div className="text-sm text-gray-500 mb-1">단백질</div>
             <div className="font-semibold text-blue-600">{mealItem.protein}</div>
           </div>
-          <div className="text-center">
+          <div className="text-center border-l border-gray-200 pl-3">
             <div className="text-sm text-gray-500 mb-1">지방</div>
             <div className="font-semibold text-green-600">{mealItem.fat}</div>
           </div>

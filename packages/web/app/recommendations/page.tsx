@@ -141,9 +141,8 @@ export default function RecommendationsPage() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               선호도 수정
             </Link>
-<<<<<<< HEAD
             <div className="flex items-center justify-between mb-3">
-              <h1 className="text-xl font-bold text-gray-900">오늘의 추천 키토 식단</h1>
+              <h1 className="text-lg font-bold text-gray-900">🧠 GPT 맞춤 키토 식단</h1>
               <button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
@@ -154,12 +153,7 @@ export default function RecommendationsPage() {
               </button>
             </div>
             <p className="text-sm text-gray-600">
-              당신의 선호도에 맞춰 AI가 추천한 완벽한 키토 식단이에요
-=======
-            <h1 className="text-3xl font-bold text-gray-900">🧠 GPT 맞춤 키토 식단</h1>
-            <p className="text-lg text-gray-600 mt-2">
               당신의 선호도를 바탕으로 GPT가 생성한 완벽한 키토 식단이에요
->>>>>>> dev
             </p>
           </div>
 
@@ -173,9 +167,9 @@ export default function RecommendationsPage() {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 선호도 수정
               </Link>
-              <h1 className="text-3xl font-bold text-gray-900">오늘의 추천 키토 식단</h1>
+              <h1 className="text-3xl font-bold text-gray-900">🧠 GPT 맞춤 키토 식단</h1>
               <p className="text-lg text-gray-600 mt-2">
-                당신의 선호도에 맞춰 AI가 추천한 완벽한 키토 식단이에요
+                당신의 선호도를 바탕으로 GPT가 생성한 완벽한 키토 식단이에요
               </p>
             </div>
             

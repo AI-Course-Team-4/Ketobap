@@ -6,22 +6,78 @@ import RestaurantCard from '@/components/RestaurantCard'
 import { MapPin, Filter, RefreshCw, AlertCircle, Utensils, Star } from 'lucide-react'
 import Link from 'next/link'
 
+// 로컬 스토리지 키
+const SHOWN_RESTAURANTS_KEY = 'shown_restaurants'
+
 export default function RestaurantsPage() {
   const { preferences, hasPreferences } = useUserStore()
   
-  const [restaurants, setRestaurants] = useState<RestaurantMenu[]>([])
-  const [filteredRestaurants, setFilteredRestaurants] = useState<RestaurantMenu[]>([])
+  const [allRestaurants, setAllRestaurants] = useState<RestaurantMenu[]>([])
+  const [displayedRestaurants, setDisplayedRestaurants] = useState<RestaurantMenu[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [minKetoScore, setMinKetoScore] = useState(60)
+  const [shownRestaurantIds, setShownRestaurantIds] = useState<Set<number>>(new Set())
+
+  // 로컬 스토리지에서 이전에 보여준 식당 ID들 불러오기
+  const loadShownRestaurants = () => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(SHOWN_RESTAURANTS_KEY)
+      if (stored) {
+        try {
+          const ids = JSON.parse(stored)
+          setShownRestaurantIds(new Set(ids))
+          return new Set(ids)
+        } catch (e) {
+          console.error('Failed to parse shown restaurants:', e)
+          localStorage.removeItem(SHOWN_RESTAURANTS_KEY)
+        }
+      }
+    }
+    return new Set()
+  }
+
+  // 로컬 스토리지에 보여준 식당 ID들 저장
+  const saveShownRestaurants = (ids: Set<number>) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(SHOWN_RESTAURANTS_KEY, JSON.stringify(Array.from(ids)))
+    }
+  }
+
+  // 6곳 랜덤 선택 (이전에 보여준 곳 제외)
+  const selectRandomRestaurants = (restaurants: RestaurantMenu[], excludeIds: Set<number>) => {
+    // 제외할 ID가 없는 식당들만 필터링
+    const availableRestaurants = restaurants.filter(r => !excludeIds.has(r.id))
+    
+    // 사용 가능한 식당이 6개 미만이면 모든 식당을 다시 사용 가능하게 만듦
+    if (availableRestaurants.length < 6) {
+      console.log('모든 식당이 소진되어 다시 시작합니다.')
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(SHOWN_RESTAURANTS_KEY)
+      }
+      setShownRestaurantIds(new Set())
+      return selectRandomFromArray(restaurants, 6)
+    }
+    
+    return selectRandomFromArray(availableRestaurants, 6)
+  }
+
+  // 배열에서 랜덤하게 n개 선택
+  const selectRandomFromArray = (array: RestaurantMenu[], count: number) => {
+    const shuffled = [...array].sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, Math.min(count, array.length))
+  }
 
   const loadRestaurants = async () => {
     try {
       setError(null)
       
-      // 키토 점수가 높은 메뉴 가져오기
-      const allMenus = await RestaurantsAPI.getTopKetoMenus(20)
+      // 이전에 보여준 식당 ID들 불러오기
+      const currentShownIds = loadShownRestaurants()
+      
+      // 키토 점수가 높은 메뉴 가져오기 (더 많은 데이터 로드)
+      const allMenus = await RestaurantsAPI.getTopKetoMenus(50)
       
       if (allMenus.length === 0) {
         throw new Error('음식점 데이터가 없습니다')
@@ -43,8 +99,21 @@ export default function RestaurantsPage() {
         }
       }
 
-      setRestaurants(filteredMenus)
-      applyKetoScoreFilter(filteredMenus, minKetoScore)
+      // 키토 점수 필터 적용
+      const ketoFilteredMenus = filteredMenus.filter(menu => menu.keto_score >= minKetoScore)
+      
+      // 전체 데이터 저장
+      setAllRestaurants(ketoFilteredMenus)
+      
+      // 6곳 랜덤 선택 (이전에 보여준 곳 제외)
+      const selectedRestaurants = selectRandomRestaurants(ketoFilteredMenus, currentShownIds)
+      setDisplayedRestaurants(selectedRestaurants)
+      
+      // 선택된 식당 ID들을 보여준 목록에 추가
+      const newShownIds = new Set([...currentShownIds, ...selectedRestaurants.map(r => r.id)])
+      setShownRestaurantIds(newShownIds)
+      saveShownRestaurants(newShownIds)
+      
     } catch (err) {
       console.error('음식점 로딩 실패:', err)
       setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다')
@@ -54,9 +123,17 @@ export default function RestaurantsPage() {
     }
   }
 
-  const applyKetoScoreFilter = (menus: RestaurantMenu[], scoreThreshold: number) => {
-    const filtered = menus.filter(menu => menu.keto_score >= scoreThreshold)
-    setFilteredRestaurants(filtered)
+  const applyKetoScoreFilter = (scoreThreshold: number) => {
+    const filtered = allRestaurants.filter(menu => menu.keto_score >= scoreThreshold)
+    
+    // 6곳 랜덤 선택 (이전에 보여준 곳 제외)
+    const selectedRestaurants = selectRandomRestaurants(filtered, shownRestaurantIds)
+    setDisplayedRestaurants(selectedRestaurants)
+    
+    // 선택된 식당 ID들을 보여준 목록에 추가
+    const newShownIds = new Set([...shownRestaurantIds, ...selectedRestaurants.map(r => r.id)])
+    setShownRestaurantIds(newShownIds)
+    saveShownRestaurants(newShownIds)
   }
 
   const handleRefresh = () => {
@@ -66,18 +143,14 @@ export default function RestaurantsPage() {
 
   const handleKetoScoreChange = (score: number) => {
     setMinKetoScore(score)
-    applyKetoScoreFilter(restaurants, score)
+    if (allRestaurants.length > 0) {
+      applyKetoScoreFilter(score)
+    }
   }
 
   useEffect(() => {
     loadRestaurants()
   }, [])
-
-  useEffect(() => {
-    if (restaurants.length > 0) {
-      applyKetoScoreFilter(restaurants, minKetoScore)
-    }
-  }, [minKetoScore, restaurants])
 
   if (isLoading) {
     return (
@@ -134,7 +207,7 @@ export default function RestaurantsPage() {
             <div className="w-12 h-12 bg-blue-100 rounded-xl mx-auto mb-3 flex items-center justify-center">
               <Utensils className="w-6 h-6 text-blue-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{restaurants.length}</p>
+            <p className="text-2xl font-bold text-gray-900">{allRestaurants.length}</p>
             <p className="text-sm text-gray-600">총 키토 메뉴</p>
           </div>
           
@@ -142,8 +215,8 @@ export default function RestaurantsPage() {
             <div className="w-12 h-12 bg-green-100 rounded-xl mx-auto mb-3 flex items-center justify-center">
               <Star className="w-6 h-6 text-green-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{filteredRestaurants.length}</p>
-            <p className="text-sm text-gray-600">필터링된 메뉴</p>
+            <p className="text-2xl font-bold text-gray-900">{displayedRestaurants.length}</p>
+            <p className="text-sm text-gray-600">추천 식당</p>
           </div>
           
           <div className="bg-white rounded-xl p-6 text-center shadow-lg border border-gray-100">
@@ -229,9 +302,9 @@ export default function RestaurantsPage() {
         </div>
 
         {/* Restaurant Cards */}
-        {filteredRestaurants.length > 0 ? (
+        {displayedRestaurants.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRestaurants.map((menu, index) => (
+            {displayedRestaurants.map((menu, index) => (
               <RestaurantCard 
                 key={menu.id} 
                 menu={menu}

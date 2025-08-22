@@ -46,26 +46,26 @@ export default function RestaurantCard({ menu, className }: RestaurantCardProps)
       {/* Content */}
       <div className="p-6">
         {/* Location */}
-        {menu.address && (
-          <div className="flex items-start space-x-3 mb-4">
-            <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-gray-700">위치</p>
-              <p className="text-sm text-gray-600">{menu.address}</p>
-            </div>
+        <div className="flex items-start space-x-3 mb-4">
+          <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-gray-700">위치</p>
+            <p className="text-sm text-gray-600">
+              {menu.address || "위치 정보가 없습니다"}
+            </p>
           </div>
-        )}
+        </div>
 
-        {/* Contact: 전화걸기 제거 (번호 표시는 유지 가능하면 텍스트로만) */}
-        {menu.phone && (
-          <div className="flex items-center space-x-3 mb-6">
-            <Phone className="w-5 h-5 text-gray-400 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-gray-700">전화번호</p>
-              <p className="text-sm text-gray-600">{menu.phone}</p>
-            </div>
+        {/* Contact */}
+        <div className="flex items-center space-x-3 mb-6">
+          <Phone className="w-5 h-5 text-gray-400 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-gray-700">전화번호</p>
+            <p className="text-sm text-gray-600">
+              {menu.phone || "전화번호가 없습니다"}
+            </p>
           </div>
-        )}
+        </div>
 
         {/* Keto Information */}
         <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200 mb-6">
