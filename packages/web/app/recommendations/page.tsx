@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { GPTMealsAPI, useUserStore, GPTMealRecommendationResponse } from '@ketobab/shared'
 import GPTMealCard from '@/components/GPTMealCard'
 import NutritionChart from '@/components/ui/NutritionChart'
+import TestLogger from '@/components/TestLogger'
 import { RefreshCw, ArrowLeft, AlertCircle, Utensils, TrendingUp, Brain } from 'lucide-react'
 import Link from 'next/link'
 
@@ -16,6 +17,7 @@ export default function RecommendationsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const hasGeneratedRef = useRef(false) // 중복 요청 방지를 위한 ref
 
   // 선호도가 없으면 선호도 페이지로 리다이렉트
   useEffect(() => {
@@ -25,6 +27,12 @@ export default function RecommendationsPage() {
   }, [hasPreferences, router])
 
   const generateRecommendations = async () => {
+    // 이미 로딩 중이거나 리프레시 중이면 중복 요청 방지
+    if (isLoading || isRefreshing) {
+      console.log('이미 요청 중입니다. 중복 요청 방지.')
+      return
+    }
+
     try {
       setError(null)
       
@@ -46,15 +54,21 @@ export default function RecommendationsPage() {
   }
 
   const handleRefresh = () => {
+    // 중복 클릭 방지
+    if (isRefreshing || isLoading) return
+    
+    hasGeneratedRef.current = false // 재생성 허용
     setIsRefreshing(true)
     generateRecommendations()
   }
 
   useEffect(() => {
-    if (hasPreferences()) {
+    // 개발 모드 Strict Mode에서 두 번 실행되는 것을 방지
+    if (hasPreferences() && !hasGeneratedRef.current) {
+      hasGeneratedRef.current = true
       generateRecommendations()
     }
-  }, [hasPreferences])
+  }, []) // 빈 의존성 배열로 한 번만 실행
 
   // 일일 총 영양 정보 계산
   const dailyNutrition = recommendations 
@@ -129,6 +143,14 @@ export default function RecommendationsPage() {
 
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      {/* 개발용 로깅 컴포넌트 */}
+      {process.env.NODE_ENV === 'development' && (
+        <TestLogger 
+          componentName="RecommendationsPage" 
+          onMount={() => console.log('🎯 추천 페이지 마운트됨')}
+        />
+      )}
+      
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

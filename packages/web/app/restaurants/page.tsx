@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { RestaurantsAPI, useUserStore, RestaurantMenu } from '@ketobab/shared'
 import RestaurantCard from '@/components/RestaurantCard'
 import { MapPin, Filter, RefreshCw, AlertCircle, Utensils, Star } from 'lucide-react'
@@ -13,10 +13,17 @@ export default function RestaurantsPage() {
   const [filteredRestaurants, setFilteredRestaurants] = useState<RestaurantMenu[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isRefreshing, setIsRefreshing] = useState(false)
   const [minKetoScore, setMinKetoScore] = useState(60)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const hasLoadedRef = useRef(false) // 중복 로딩 방지
 
   const loadRestaurants = async () => {
+    // 이미 로딩 중이면 중복 요청 방지
+    if (isLoading || isRefreshing) {
+      console.log('이미 로딩 중입니다. 중복 요청 방지.')
+      return
+    }
+
     try {
       setError(null)
       
@@ -60,6 +67,10 @@ export default function RestaurantsPage() {
   }
 
   const handleRefresh = () => {
+    // 중복 클릭 방지
+    if (isRefreshing || isLoading) return
+    
+    hasLoadedRef.current = false // 재로딩 허용
     setIsRefreshing(true)
     loadRestaurants()
   }
@@ -70,7 +81,11 @@ export default function RestaurantsPage() {
   }
 
   useEffect(() => {
-    loadRestaurants()
+    // 개발 모드 Strict Mode에서 두 번 실행되는 것을 방지
+    if (!hasLoadedRef.current) {
+      hasLoadedRef.current = true
+      loadRestaurants()
+    }
   }, [])
 
   useEffect(() => {
