@@ -12,6 +12,7 @@ import random
 from .database import get_db, Restaurant, Menu
 # Note: foods 테이블은 아직 데이터가 없으므로 빈 응답 반환
 from .gpt_service import GPTService
+from .config import get_current_prompt
 
 router = APIRouter()
 
@@ -202,8 +203,10 @@ async def recommend_meal(request: MealRecommendationRequest):
                 detail="선호 음식, 비선호 음식, 알레르기 중 최소 하나는 입력해주세요"
             )
         
-        # GPT 서비스를 통한 식단 추천
-        gpt_service = GPTService()
+        # GPT 서비스를 통한 식단 추천 (개별 프롬프트 테스트 가능)
+        # config.py에서 CURRENT_PROMPT를 바꿔서 다른 프롬프트 테스트
+        current_prompt_version = get_current_prompt()
+        gpt_service = GPTService(current_prompt_version)
         preferences = {
             "preferred_foods": request.preferred_foods,
             "disliked_foods": request.disliked_foods,

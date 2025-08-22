@@ -8,6 +8,7 @@ import os
 from typing import Dict, List
 import asyncio
 from dotenv import load_dotenv
+from .prompts.team_prompts import get_prompt_set
 
 # .env 파일에서 환경변수 로드
 load_dotenv()
@@ -23,8 +24,15 @@ else:
 class GPTService:
     """GPT API를 활용한 키토 관련 서비스"""
     
-    @staticmethod
-    async def analyze_menu(menu_name: str) -> Dict:
+    def __init__(self, team_member: str = "default"):
+        """
+        Args:
+            team_member: 사용할 프롬프트 세트 (default, improved, 또는 팀원명)
+        """
+        self.prompts = get_prompt_set(team_member)
+        self.team_member = team_member
+    
+    async def analyze_menu(self, menu_name: str) -> Dict:
         """
         메뉴명을 분석하여 키토 점수와 메인/사이드 구분을 반환
         
@@ -34,20 +42,10 @@ class GPTService:
         Returns:
             {"keto_score": int, "is_main": bool}
         """
-        prompt = f"""
-메뉴명: "{menu_name}"
-
-다음 두 가지를 판단해주세요:
-1. 키토 친화도를 0-100점으로 평가 (탄수화물 적을수록, 지방 많을수록 높은 점수)
-2. 메인메뉴인지 사이드메뉴인지 구분 (main/side)
-
-평가 기준:
-- 키토 점수: 쌀/면/빵/설탕 포함시 낮은 점수, 고기/생선/채소/지방 위주시 높은 점수
-- 메뉴 구분: 주식이 되는 메뉴는 main, 반찬이나 간식은 side
-
-JSON 형태로만 응답해주세요:
-{{"keto_score": 점수숫자, "menu_type": "main"또는"side"}}
-"""
+        menu_prompt = self.prompts["menu_analysis"]
+        system_message = menu_prompt.get_system_message()
+        user_message = menu_prompt.format_user_message(menu_name=menu_name)
+        model_config = menu_prompt.get_model_config()
         
         try:
             from openai import OpenAI
@@ -55,13 +53,11 @@ JSON 형태로만 응답해주세요:
             
             response = await asyncio.to_thread(
                 client.chat.completions.create,
-                model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "당신은 키토 다이어트 전문가입니다. 정확하고 일관된 평가를 해주세요."},
-                    {"role": "user", "content": prompt}
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": user_message}
                 ],
-                max_tokens=100,
-                temperature=0.3
+                **model_config
             )
             
             result_text = response.choices[0].message.content.strip()
@@ -86,8 +82,7 @@ JSON 형태로만 응답해주세요:
             # 기본값 반환
             return {"keto_score": 50, "is_main": True}
     
-    @staticmethod
-    async def recommend_meal_plan(preferences: Dict) -> Dict:
+    async def recommend_meal_plan(self, preferences: Dict) -> Dict:
         """
         사용자 선호도를 바탕으로 키토 식단을 추천
         
@@ -97,56 +92,10 @@ JSON 형태로만 응답해주세요:
         Returns:
             키토 식단 추천 결과
         """
-        preferred = ", ".join(preferences.get("preferred_foods", []))
-        disliked = ", ".join(preferences.get("disliked_foods", []))
-        allergies = ", ".join(preferences.get("allergies", []))
-        
-        prompt = f"""
-사용자 정보:
-- 선호 음식: {preferred if preferred else "없음"}
-- 비선호 음식: {disliked if disliked else "없음"}
-- 알레르기: {allergies if allergies else "없음"}
-
-위 정보를 바탕으로 키토 다이어트에 적합한 하루 식단을 추천해주세요.
-
-요구사항:
-- 아침, 점심, 저녁으로 구분
-- 각 식사마다 탄수화물 15g 이하, 지방 비율 70% 이상
-- 사용자의 알레르기 식품은 절대 포함하지 말 것
-- 비선호 음식은 가능한 피할 것
-- 선호 음식을 적극 활용할 것
-- 간단한 조리법 포함
-
-반드시 아래 JSON 형태로만 응답해주세요 (다른 텍스트 없이):
-{{
-  "breakfast": {{
-    "name": "메뉴명",
-    "ingredients": ["재료1", "재료2"],
-    "cooking_method": "조리법",
-    "carbs": "탄수화물g",
-    "fat": "지방g", 
-    "protein": "단백질g"
-  }},
-  "lunch": {{
-    "name": "메뉴명",
-    "ingredients": ["재료1", "재료2"],
-    "cooking_method": "조리법",
-    "carbs": "탄수화물g",
-    "fat": "지방g", 
-    "protein": "단백질g"
-  }},
-  "dinner": {{
-    "name": "메뉴명",
-    "ingredients": ["재료1", "재료2"],
-    "cooking_method": "조리법",
-    "carbs": "탄수화물g",
-    "fat": "지방g", 
-    "protein": "단백질g"
-  }}
-}}
-
-중요: 반드시 breakfast, lunch, dinner 모두 포함하고, 각각 name, ingredients, cooking_method, carbs, fat, protein 필드를 모두 포함해야 합니다.
-"""
+        meal_prompt = self.prompts["meal_plan"]
+        system_message = meal_prompt.get_system_message()
+        user_message = meal_prompt.format_user_message(preferences)
+        model_config = meal_prompt.get_model_config()
         
         try:
             from openai import OpenAI
@@ -154,13 +103,11 @@ JSON 형태로만 응답해주세요:
             
             response = await asyncio.to_thread(
                 client.chat.completions.create,
-                model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "당신은 키토 다이어트 전문 영양사입니다. 개인의 선호도를 고려한 맞춤 식단을 제공해주세요."},
-                    {"role": "user", "content": prompt}
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": user_message}
                 ],
-                max_tokens=800,
-                temperature=0.7
+                **model_config
             )
             
             result_text = response.choices[0].message.content.strip()
@@ -286,11 +233,17 @@ JSON 형태로만 응답해주세요:
 # 사용 예시
 if __name__ == "__main__":
     async def test():
-        service = GPTService()
+        # 기본 프롬프트로 테스트
+        service = GPTService("default")
         
         # 메뉴 분석 테스트
         result = await service.analyze_menu("고에몬 미니 샐러드")
         print(f"메뉴 분석 결과: {result}")
+        
+        # 개선된 프롬프트로 테스트
+        improved_service = GPTService("improved")
+        result2 = await improved_service.analyze_menu("고에몬 미니 샐러드")
+        print(f"개선된 메뉴 분석 결과: {result2}")
         
         # 식단 추천 테스트
         preferences = {
