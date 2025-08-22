@@ -9,9 +9,6 @@
     "install:all": "cd packages/shared && npm install && cd ../web && npm install && cd ../mobile && npm install"
   },
   "dependencies": {
-    "expo": "^49.0.23",
-    "expo-router": "^2.0.0",
-    "metro": "0.73",
-    "react-native-svg": "^15.12.1"
+    "expo": "^53.0.20"
   }
 }

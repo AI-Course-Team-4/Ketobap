@@ -4,6 +4,7 @@ export * from './types';
 // API
 export * from './api/foods';
 export * from './api/restaurants';
+export * from './api/gptMeals';
 
 // AI
 export * from './ai/huggingface';
@@ -14,5 +15,4 @@ export * from './stores/userStore';
 // Utils
 export * from './utils/nutrition';
 
-// Config
-export { default as supabase } from './config/supabase';
+// Config (SQLite는 더 이상 사용하지 않음 - 백엔드 API 사용)

@@ -9,7 +9,7 @@ export const MOCK_FOODS: Food[] = [
     protein: 4,
     fat: 22,
     calories: 250,
-    keto_score: 85,
+    keto_score: 53,
     tags: ['아보카도', '샐러드', '채소']
   },
   {
@@ -19,7 +19,7 @@ export const MOCK_FOODS: Food[] = [
     protein: 25,
     fat: 18,
     calories: 280,
-    keto_score: 90,
+    keto_score: 55,
     tags: ['연어', '생선', '오메가3']
   },
   {
@@ -29,7 +29,7 @@ export const MOCK_FOODS: Food[] = [
     protein: 15,
     fat: 20,
     calories: 260,
-    keto_score: 88,
+    keto_score: 80,
     tags: ['계란', '치즈', '유제품']
   },
   {
@@ -39,7 +39,7 @@ export const MOCK_FOODS: Food[] = [
     protein: 20,
     fat: 35,
     calories: 380,
-    keto_score: 92,
+    keto_score: 85,
     tags: ['돼지고기', '구이']
   },
   {
@@ -49,7 +49,7 @@ export const MOCK_FOODS: Food[] = [
     protein: 2,
     fat: 21,
     calories: 200,
-    keto_score: 87,
+    keto_score: 70,
     tags: ['견과류', '마카다미아']
   },
   {
@@ -69,7 +69,7 @@ export const MOCK_FOODS: Food[] = [
     protein: 18,
     fat: 12,
     calories: 180,
-    keto_score: 85,
+    keto_score: 55,
     tags: ['새우', '버터', '해산물']
   },
   {

@@ -181,16 +181,16 @@ export default function RestaurantsPage() {
               </label>
               <input
                 type="range"
-                min="0"
+                min="50"
                 max="100"
-                step="10"
+                step="5"
                 value={minKetoScore}
                 onChange={(e) => handleKetoScoreChange(Number(e.target.value))}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
               />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>0</span>
                 <span>50</span>
+                <span>75</span>
                 <span>100</span>
               </div>
             </div>
@@ -253,7 +253,7 @@ export default function RestaurantsPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
-                onClick={() => handleKetoScoreChange(Math.max(0, minKetoScore - 20))}
+                onClick={() => handleKetoScoreChange(Math.max(50, minKetoScore - 20))}
                 className="btn-secondary"
               >
                 키토 점수 기준 낮추기

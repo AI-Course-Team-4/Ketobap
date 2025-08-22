@@ -56,18 +56,13 @@ export default function RestaurantCard({ menu, className }: RestaurantCardProps)
           </div>
         )}
 
-        {/* Contact */}
+        {/* Contact: 전화걸기 제거 (번호 표시는 유지 가능하면 텍스트로만) */}
         {menu.phone && (
           <div className="flex items-center space-x-3 mb-6">
             <Phone className="w-5 h-5 text-gray-400 flex-shrink-0" />
             <div>
               <p className="text-sm font-medium text-gray-700">전화번호</p>
-              <button 
-                onClick={handlePhoneCall}
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-              >
-                {menu.phone}
-              </button>
+              <p className="text-sm text-gray-600">{menu.phone}</p>
             </div>
           </div>
         )}
@@ -100,7 +95,7 @@ export default function RestaurantCard({ menu, className }: RestaurantCardProps)
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons (전화걸기 제거) */}
         <div className="space-y-3">
           <button
             onClick={handleNaverSearch}
@@ -109,16 +104,6 @@ export default function RestaurantCard({ menu, className }: RestaurantCardProps)
             <ExternalLink className="w-5 h-5" />
             <span>네이버에서 검색하기</span>
           </button>
-          
-          {menu.phone && (
-            <button
-              onClick={handlePhoneCall}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg"
-            >
-              <Phone className="w-5 h-5" />
-              <span>전화 걸기</span>
-            </button>
-          )}
         </div>
 
         {/* Tips */}

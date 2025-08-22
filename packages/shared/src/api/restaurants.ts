@@ -1,6 +1,4 @@
-import { supabase } from '../config/supabase';
 import { RestaurantMenu, SearchFilters } from '../types';
-import { MOCK_RESTAURANTS } from './mockData';
 
 export class RestaurantsAPI {
   /**
@@ -8,25 +6,14 @@ export class RestaurantsAPI {
    */
   static async getTopKetoMenus(limit: number = 5): Promise<RestaurantMenu[]> {
     try {
-      const { data, error } = await supabase
-        .from('restaurant_menus')
-        .select('*')
-        .order('keto_score', { ascending: false })
-        .limit(limit);
+      // 백엔드 FastAPI 서버 호출
+      const response = await fetch(`http://localhost:8000/restaurants/top?limit=${limit}`);
+      const result = await response.json();
 
-      if (error) {
-        console.warn('Supabase에서 음식점 데이터 조회 실패, 로컬 데이터 사용:', error);
-        return MOCK_RESTAURANTS
-          .sort((a, b) => b.keto_score - a.keto_score)
-          .slice(0, limit);
-      }
-
-      return data || MOCK_RESTAURANTS.slice(0, limit);
+      return Array.isArray(result) ? result : [];
     } catch (error) {
-      console.warn('데이터베이스 연결 실패, 로컬 데이터 사용:', error);
-      return MOCK_RESTAURANTS
-        .sort((a, b) => b.keto_score - a.keto_score)
-        .slice(0, limit);
+      console.error('백엔드 API 호출 실패:', error);
+      return [];
     }
   }
 
@@ -34,23 +21,21 @@ export class RestaurantsAPI {
    * 필터 조건에 맞는 음식점 메뉴를 검색합니다
    */
   static async searchRestaurantMenus(filters: SearchFilters): Promise<RestaurantMenu[]> {
-    let query = supabase
-      .from('restaurant_menus')
-      .select('*');
+    try {
+      // 검색 파라미터 구성
+      const params = new URLSearchParams();
+      if (filters.minKetoScore) {
+        params.append('minKetoScore', filters.minKetoScore.toString());
+      }
 
-    // 키토 점수 필터
-    if (filters.minKetoScore) {
-      query = query.gte('keto_score', filters.minKetoScore);
+      const response = await fetch(`http://localhost:8000/restaurants/search?${params.toString()}`);
+      const result = await response.json();
+
+      return Array.isArray(result) ? result : [];
+    } catch (error) {
+      console.error('백엔드 API 호출 실패:', error);
+      return [];
     }
-
-    const { data, error } = await query.order('keto_score', { ascending: false });
-
-    if (error) {
-      console.error('음식점 메뉴 검색 실패:', error);
-      throw new Error('음식점 메뉴 검색에 실패했습니다');
-    }
-
-    return data || [];
   }
 
   /**

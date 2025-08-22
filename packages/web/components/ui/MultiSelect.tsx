@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Check, ChevronDown, X } from 'lucide-react'
 import { clsx } from 'clsx'
 
@@ -25,6 +25,7 @@ export default function MultiSelect({
   className
 }: MultiSelectProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const listRef = useRef<HTMLDivElement>(null)
 
   const handleToggle = (optionValue: string) => {
     if (value.includes(optionValue)) {
@@ -32,7 +33,20 @@ export default function MultiSelect({
     } else {
       onChange([...value, optionValue])
     }
+    // '기타' 선택 시 드롭다운 닫기 및 트리거 블러 처리
+    if (optionValue === '기타') {
+      setIsOpen(false)
+      if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur()
+      }
+    }
   }
+  // 열릴 때 스크롤을 맨 위로 초기화
+  useEffect(() => {
+    if (isOpen) {
+      listRef.current?.scrollTo({ top: 0 })
+    }
+  }, [isOpen])
 
   const handleRemove = (optionValue: string) => {
     onChange(value.filter(v => v !== optionValue))
@@ -85,7 +99,7 @@ export default function MultiSelect({
 
       {/* Dropdown Options */}
       {isOpen && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+        <div ref={listRef} className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
           {options.map(option => {
             const isSelected = value.includes(option.value)
             return (
