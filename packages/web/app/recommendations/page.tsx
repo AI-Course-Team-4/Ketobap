@@ -146,29 +146,57 @@ export default function RecommendationsPage() {
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
+        <div className="mb-6 sm:mb-8">
+          {/* Mobile Layout */}
+          <div className="block sm:hidden">
             <Link 
               href="/preferences"
-              className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4"
+              className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-3"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               선호도 수정
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">오늘의 추천 키토 식단</h1>
-            <p className="text-lg text-gray-600 mt-2">
+            <div className="flex items-center justify-between mb-3">
+              <h1 className="text-xl font-bold text-gray-900">오늘의 추천 키토 식단</h1>
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="btn-primary flex items-center space-x-1 text-sm px-3 py-2"
+              >
+                <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span>새로운 추천</span>
+              </button>
+            </div>
+            <p className="text-sm text-gray-600">
               당신의 선호도에 맞춰 AI가 추천한 완벽한 키토 식단이에요
             </p>
           </div>
-          
-          <button
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="btn-primary flex items-center space-x-2"
-          >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>새로운 추천</span>
-          </button>
+
+          {/* Desktop Layout */}
+          <div className="hidden sm:flex items-center justify-between">
+            <div>
+              <Link 
+                href="/preferences"
+                className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                선호도 수정
+              </Link>
+              <h1 className="text-3xl font-bold text-gray-900">오늘의 추천 키토 식단</h1>
+              <p className="text-lg text-gray-600 mt-2">
+                당신의 선호도에 맞춰 AI가 추천한 완벽한 키토 식단이에요
+              </p>
+            </div>
+            
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="btn-primary flex items-center space-x-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span>새로운 추천</span>
+            </button>
+          </div>
         </div>
 
         {recommendations && (

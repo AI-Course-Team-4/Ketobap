@@ -37,7 +37,7 @@ export default function HomePage() {
               🚀 AI 기반 키토 다이어트 도우미
             </span>
             <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-              당신만의{' '}
+              당신만의<br />
               <span className="text-gradient">키토 식단</span>을<br />
               AI가 추천해드려요
             </h1>

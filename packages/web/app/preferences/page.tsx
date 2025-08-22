@@ -102,6 +102,21 @@ export default function PreferencesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // 기타 입력 중복 검증
+    const customPreferredSet = new Set(
+      splitTokens(sanitizeKoreanChars(customPreferredText))
+    )
+    const customDislikedSet = new Set(
+      splitTokens(sanitizeKoreanChars(customDislikedText))
+    )
+    const hasConflict = Array.from(customPreferredSet).some((x) => customDislikedSet.has(x))
+    
+    // 중복이 있으면 실행 중단
+    if (hasConflict) {
+      return
+    }
+    
     setIsSubmitting(true)
 
     try {
@@ -110,10 +125,12 @@ export default function PreferencesPage() {
         ...formData,
         customPreferred: normalizeKoreanList(customPreferredText),
         customDisliked: normalizeKoreanList(customDislikedText),
+        customAllergies: normalizeKoreanList(customAllergiesText),
       }
       setPreferences(normalized)
 
-      // 식단 추천 페이지로 이동
+      // 잠시 대기 후 페이지 이동 (상태 저장 완료 보장)
+      await new Promise(resolve => setTimeout(resolve, 100))
       router.push('/recommendations')
     } catch (error) {
       console.error('선호도 저장 실패:', error)
@@ -148,34 +165,40 @@ export default function PreferencesPage() {
     const customDislikedSet = new Set(
       splitTokens(sanitizeKoreanChars(customDislikedText))
     )
-    const hasConflict = [...customPreferredSet].some((x) => customDislikedSet.has(x))
+    const customAllergiesSet = new Set(
+      splitTokens(sanitizeKoreanChars(customAllergiesText))
+    )
+    const hasConflict = Array.from(customPreferredSet).some((x) => customDislikedSet.has(x))
 
-    return (
+    // 기본 선호도가 하나라도 설정되어 있고, 중복 충돌이 없어야 함
+    const hasAnyPreference = (
       formData.preferredFoods.length > 0 ||
       formData.dislikedFoods.length > 0 ||
       formData.allergies.length > 0 ||
       customPreferredSet.size > 0 ||
       customDislikedSet.size > 0 ||
-      !!formData.customAllergies
-    ) && !hasConflict
+      customAllergiesSet.size > 0
+    )
+
+    return hasAnyPreference && !hasConflict
   }
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-4 px-3 sm:py-8 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            맞춤 식단을 위한 선호도 설정
+        <div className="text-center mb-6 sm:mb-8 animate-fade-in">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
+            맞춤 식단을 위한<br className="sm:hidden" /> 선호도 설정
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600 px-2 sm:px-0">
             당신의 취향에 맞는 완벽한 키토 식단을 추천해드릴게요
           </p>
         </div>
 
         {/* Progress indicator */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 mb-2">
             <span>1단계: 선호도 설정</span>
             <span>2단계: 식단 추천</span>
           </div>
@@ -184,16 +207,16 @@ export default function PreferencesPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
           {/* 선호 음식 */}
           <div className="card animate-slide-up">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Heart className="w-5 h-5 text-green-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
               </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">선호하는 음식</h2>
-                <p className="text-sm text-gray-600">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">선호하는 음식</h2>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                   자주 드시거나 좋아하는 음식을 선택해주세요
                 </p>
               </div>
@@ -209,7 +232,7 @@ export default function PreferencesPage() {
 
             {formData.preferredFoods.includes('기타') && (
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   기타 선호 음식 (쉼표/공백/줄바꿈으로 구분)
                 </label>
                 <input
@@ -238,12 +261,12 @@ export default function PreferencesPage() {
           {/* 비선호 음식 */}
           <div className="card animate-slide-up">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                <X className="w-5 h-5 text-red-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <X className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
               </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">비선호하는 음식</h2>
-                <p className="text-sm text-gray-600">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">비선호하는 음식</h2>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                   드시고 싶지 않거나 싫어하는 음식을 선택해주세요
                 </p>
               </div>
@@ -259,7 +282,7 @@ export default function PreferencesPage() {
 
             {formData.dislikedFoods.includes('기타') && (
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   기타 비선호 음식 (쉼표/공백/줄바꿈으로 구분)
                 </label>
                 <input
@@ -288,12 +311,12 @@ export default function PreferencesPage() {
           {/* 알레르기 */}
           <div className="card animate-slide-up">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-orange-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
               </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">알레르기 정보</h2>
-                <p className="text-sm text-gray-600">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">알레르기 정보</h2>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                   알레르기가 있는 식품을 선택해주세요 (중요)
                 </p>
               </div>
@@ -311,7 +334,7 @@ export default function PreferencesPage() {
 
             {formData.allergies.includes('기타') && (
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   기타 알레르기 (쉼표로 구분)
                 </label>
                 <input
@@ -328,8 +351,8 @@ export default function PreferencesPage() {
 
             <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
               <div className="flex items-start space-x-2">
-                <Info className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-orange-800">
+                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 mt-1 sm:mt-0.5 flex-shrink-0" />
+                <p className="text-xs sm:text-sm text-orange-800 leading-relaxed">
                   알레르기 정보는 식단 추천 시 해당 식품을 완전히 제외하는데
                   사용됩니다. 정확한 정보를 입력해주세요.
                 </p>
@@ -343,20 +366,22 @@ export default function PreferencesPage() {
             {(() => {
               const pref = splitTokens(sanitizeKoreanChars(customPreferredText))
               const dislike = splitTokens(sanitizeKoreanChars(customDislikedText))
-              const conflict = pref.find((p) => dislike.includes(p))
-              return conflict ? (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-                  같은 음식이 입력되었습니다 수정해주세요
+              const conflicts = pref.filter((p) => dislike.includes(p))
+              return conflicts.length > 0 ? (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs sm:text-sm text-red-700">
+                  <div className="font-medium mb-1">중복된 음식이 발견되었습니다:</div>
+                  <div className="text-red-600 break-words">{conflicts.join(', ')}</div>
+                  <div className="mt-1 leading-relaxed">선호 음식과 비선호 음식에서 중복된 항목을 제거해주세요.</div>
                 </div>
               ) : null
             })()}
 
             <button
               type="submit"
-              disabled={isSubmitting}
-              className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 ${
+              disabled={!hasBasicPreferences() || isSubmitting}
+              className={`w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-semibold text-base sm:text-lg transition-all duration-200 flex items-center justify-center space-x-2 min-h-[48px] sm:min-h-[56px] ${
                 hasBasicPreferences() && !isSubmitting
-                  ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg hover:shadow-glow'
+                  ? 'bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white shadow-lg hover:shadow-glow'
                   : 'bg-gray-200 text-gray-500 cursor-not-allowed'
               }`}
             >
@@ -374,7 +399,7 @@ export default function PreferencesPage() {
             </button>
 
             {!hasBasicPreferences() && (
-              <p className="text-center text-sm text-gray-500">
+              <p className="text-center text-xs sm:text-sm text-gray-500 px-4">
                 하나 이상의 선호도를 설정해주세요
               </p>
             )}
@@ -382,22 +407,22 @@ export default function PreferencesPage() {
         </form>
 
         {/* Tips */}
-        <div className="mt-12 p-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-xl border border-blue-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+        <div className="mt-8 sm:mt-12 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-xl border border-blue-200">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3">
             💡 더 정확한 추천을 위한 팁
           </h3>
-          <ul className="space-y-2 text-sm text-gray-700">
+          <ul className="space-y-2 text-xs sm:text-sm text-gray-700">
             <li className="flex items-start space-x-2">
-              <span className="text-blue-600">•</span>
-              <span>평소 자주 드시는 음식을 선호 음식에 포함시켜주세요</span>
+              <span className="text-blue-600 flex-shrink-0">•</span>
+              <span className="leading-relaxed">평소 자주 드시는 음식을 선호 음식에 포함시켜주세요</span>
             </li>
             <li className="flex items-start space-x-2">
-              <span className="text-blue-600">•</span>
-              <span>알레르기 정보는 반드시 정확하게 입력해주세요</span>
+              <span className="text-blue-600 flex-shrink-0">•</span>
+              <span className="leading-relaxed">알레르기 정보는 반드시 정확하게 입력해주세요</span>
             </li>
             <li className="flex items-start space-x-2">
-              <span className="text-blue-600">•</span>
-              <span>설정은 언제든지 변경할 수 있습니다</span>
+              <span className="text-blue-600 flex-shrink-0">•</span>
+              <span className="leading-relaxed">설정은 언제든지 변경할 수 있습니다</span>
             </li>
           </ul>
         </div>

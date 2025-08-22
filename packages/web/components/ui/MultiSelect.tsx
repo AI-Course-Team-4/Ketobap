@@ -62,7 +62,7 @@ export default function MultiSelect({
           {selectedOptions.map(option => (
             <span
               key={option.value}
-              className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium"
+              className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs sm:text-sm font-medium"
             >
               {option.label}
               <button
@@ -81,7 +81,7 @@ export default function MultiSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-left flex items-center justify-between"
+        className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-left flex items-center justify-between text-sm sm:text-base min-h-[44px] sm:min-h-[40px]"
       >
         <span className={clsx(
           selectedOptions.length > 0 ? "text-gray-700" : "text-gray-500"
@@ -108,7 +108,7 @@ export default function MultiSelect({
                 type="button"
                 onClick={() => handleToggle(option.value)}
                 className={clsx(
-                  "w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center justify-between transition-colors",
+                  "w-full px-3 py-3 sm:py-2 text-left hover:bg-gray-50 flex items-center justify-between transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-[40px]",
                   isSelected && "bg-primary-50 text-primary-700"
                 )}
               >
