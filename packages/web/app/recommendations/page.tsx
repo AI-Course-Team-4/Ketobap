@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { GPTMealsAPI, useUserStore, GPTMealRecommendationResponse } from '@ketobab/shared'
 import GPTMealCard from '@/components/GPTMealCard'
@@ -17,7 +17,6 @@ export default function RecommendationsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const hasGeneratedRef = useRef(false) // 중복 요청 방지를 위한 ref
 
   // 선호도가 없으면 선호도 페이지로 리다이렉트
   useEffect(() => {
@@ -27,12 +26,6 @@ export default function RecommendationsPage() {
   }, [hasPreferences, router])
 
   const generateRecommendations = async () => {
-    // 이미 로딩 중이거나 리프레시 중이면 중복 요청 방지
-    if (isLoading || isRefreshing) {
-      console.log('이미 요청 중입니다. 중복 요청 방지.')
-      return
-    }
-
     try {
       setError(null)
       
@@ -57,15 +50,12 @@ export default function RecommendationsPage() {
     // 중복 클릭 방지
     if (isRefreshing || isLoading) return
     
-    hasGeneratedRef.current = false // 재생성 허용
     setIsRefreshing(true)
     generateRecommendations()
   }
 
   useEffect(() => {
-    // 개발 모드 Strict Mode에서 두 번 실행되는 것을 방지
-    if (hasPreferences() && !hasGeneratedRef.current) {
-      hasGeneratedRef.current = true
+    if (hasPreferences()) {
       generateRecommendations()
     }
   }, []) // 빈 의존성 배열로 한 번만 실행

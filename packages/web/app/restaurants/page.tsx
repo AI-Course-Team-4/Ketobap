@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { RestaurantsAPI, useUserStore, RestaurantMenu } from '@ketobab/shared'
 import RestaurantCard from '@/components/RestaurantCard'
 import { MapPin, Filter, RefreshCw, AlertCircle, Utensils, Star } from 'lucide-react'
@@ -15,14 +15,10 @@ export default function RestaurantsPage() {
   const [error, setError] = useState<string | null>(null)
   const [minKetoScore, setMinKetoScore] = useState(60)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const hasLoadedRef = useRef(false) // 중복 로딩 방지
+
 
   const loadRestaurants = async () => {
-    // 이미 로딩 중이면 중복 요청 방지
-    if (isLoading || isRefreshing) {
-      console.log('이미 로딩 중입니다. 중복 요청 방지.')
-      return
-    }
+
 
     try {
       setError(null)
@@ -81,11 +77,7 @@ export default function RestaurantsPage() {
   }
 
   useEffect(() => {
-    // 개발 모드 Strict Mode에서 두 번 실행되는 것을 방지
-    if (!hasLoadedRef.current) {
-      hasLoadedRef.current = true
-      loadRestaurants()
-    }
+    loadRestaurants()
   }, [])
 
   useEffect(() => {
