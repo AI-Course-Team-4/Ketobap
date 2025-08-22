@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     },
     circleContainer: {
         position: 'absolute',
-        bottom: 120,
+        bottom: 60,
         left: 0,
         right: 0,
         flexDirection: 'row',

@@ -52,7 +52,7 @@ export default function App() {
           tabBarActiveTintColor: '#8E9E6A',
           tabBarInactiveTintColor: '#C2CCAA',
           tabBarStyle: { 
-            height: 104, 
+            height: 60, 
             backgroundColor: '#E4EBD6',
           },
           tabBarLabelStyle: { display: 'none' },
