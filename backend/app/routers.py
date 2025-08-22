@@ -73,12 +73,12 @@ async def get_restaurants(db: Session = Depends(get_db)):
 async def get_restaurant_menus(
     restaurant_id: int,
     min_keto_score: int = Query(default=60, description="최소 키토 점수"),
-    limit: int = Query(default=6, description="최대 출력 개수"),
+    limit: int = Query(default=100, description="최대 출력 개수"),
     db: Session = Depends(get_db)
 ):
     """
     식당별 메뉴 조회 API
-    키토 점수 60점 이상 메인 메뉴만 랜덤으로 최대 6개 반환
+    키토 점수 60점 이상 메인 메뉴 모두 반환
     """
     try:
         # 식당 존재 여부 확인

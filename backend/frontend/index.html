@@ -193,7 +193,7 @@
         }
 
         .keto-high { background: #c6f6d5; color: #22543d; }
-        .keto-medium { background: #fefcbf; color: #744210; }
+        .keto-medium { background: #bee3f8; color: #2b6cb0; }
         .keto-low { background: #fed7d7; color: #c53030; }
 
         .menu-type {
@@ -523,9 +523,10 @@
                     <div class="form-group">
                         <label class="form-label">키토 점수 필터</label>
                         <select class="form-input" id="ketoFilter" onchange="filterMenus()">
-                            <option value="0">전체 메뉴</option>
+                            <option value="60" selected>키토 추천 메뉴 (60점 이상)</option>
                             <option value="70">키토 친화적 (70점 이상)</option>
                             <option value="40">보통 (40점 이상)</option>
+                            <option value="0">전체 메뉴</option>
                             </select>
                     </div>
                     <div id="menuResults"></div>
@@ -533,8 +534,8 @@
                 
                 document.getElementById('content').innerHTML = html;
                 
-                // 첫 번째 식당 메뉴로 초기화
-                showRestaurantMenus(restaurants[0].id);
+                // 기본으로 60점 이상 메뉴 표시
+                filterMenus();
                 
             } catch (error) {
                 showError(error.message);
@@ -542,10 +543,80 @@
         }
 
         // 메뉴 필터링
-        function filterMenus() {
+        async function filterMenus() {
             const minScore = document.getElementById('ketoFilter').value;
-            // 실제로는 API에 필터 파라미터를 전달해야 함
-            console.log('필터링:', minScore);
+            const menuResults = document.getElementById('menuResults');
+            
+            menuResults.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>필터링된 메뉴를 불러오는 중...</p>
+                </div>
+            `;
+            
+            try {
+                // 모든 식당의 메뉴를 가져와서 필터링
+                const restaurantsResponse = await fetch(`${API_BASE}/restaurants`);
+                if (!restaurantsResponse.ok) throw new Error(`HTTP ${restaurantsResponse.status}`);
+                
+                const restaurants = await restaurantsResponse.json();
+                let allMenus = [];
+                
+                // 각 식당의 메뉴를 가져오기
+                for (const restaurant of restaurants) {
+                    try {
+                        const menuResponse = await fetch(`${API_BASE}/restaurants/${restaurant.id}/menus?min_keto_score=${minScore}&limit=1000`);
+                        if (menuResponse.ok) {
+                            const menuData = await menuResponse.json();
+                            menuData.menus.forEach(menu => {
+                                allMenus.push({
+                                    ...menu,
+                                    restaurant_name: restaurant.name
+                                });
+                            });
+                        }
+                    } catch (error) {
+                        console.log(`식당 ${restaurant.name} 메뉴 로딩 실패:`, error);
+                    }
+                }
+                
+                // 키토 점수 순으로 정렬
+                allMenus.sort((a, b) => b.keto_score - a.keto_score);
+                
+                let html = `<h3>📋 필터링 결과 (${allMenus.length}개 메뉴)</h3>`;
+                
+                if (allMenus.length === 0) {
+                    html += '<p>조건에 맞는 메뉴가 없습니다.</p>';
+                } else {
+                    html += '<div class="menu-list">';
+                    allMenus.forEach(menu => {
+                        const ketoClass = menu.keto_score >= 70 ? 'keto-high' : 
+                                        menu.keto_score >= 60 ? 'keto-medium' : 'keto-low';
+                        const typeClass = menu.is_main ? 'type-main' : 'type-side';
+                        const typeText = menu.is_main ? '메인' : '사이드';
+                    
+                        html += `
+                            <div class="menu-card">
+                                <div class="menu-name">${menu.name}</div>
+                                <div style="color: #718096; font-size: 0.9em; margin-bottom: 8px;">📍 ${menu.restaurant_name}</div>
+                                <div class="keto-score ${ketoClass}">키토 점수: ${menu.keto_score}점</div>
+                                <span class="menu-type ${typeClass}">${typeText}</span>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+                
+                menuResults.innerHTML = html;
+                
+            } catch (error) {
+                menuResults.innerHTML = `
+                    <div class="error">
+                        <h3>❌ 메뉴 로딩 실패</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
         }
 
         // 식단 추천 화면 표시

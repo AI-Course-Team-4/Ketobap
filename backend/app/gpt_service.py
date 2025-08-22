@@ -12,8 +12,13 @@ from dotenv import load_dotenv
 # .env 파일에서 환경변수 로드
 load_dotenv()
 
-# OpenAI API 키 설정 (환경변수에서 가져오기)
-openai.api_key = os.getenv("OPENAI_API_KEY", "your-api-key-here")
+# OpenAI API 키 확인
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    print("❌ OPENAI_API_KEY 환경변수가 설정되지 않았습니다!")
+    print("환경변수를 확인하거나 .env 파일을 생성해주세요.")
+else:
+    print("✅ OPENAI_API_KEY 환경변수 로드 완료")
 
 class GPTService:
     """GPT API를 활용한 키토 관련 서비스"""
@@ -46,11 +51,11 @@ JSON 형태로만 응답해주세요:
         
         try:
             from openai import OpenAI
-            client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            client = OpenAI(api_key=OPENAI_API_KEY)
             
             response = await asyncio.to_thread(
                 client.chat.completions.create,
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "당신은 키토 다이어트 전문가입니다. 정확하고 일관된 평가를 해주세요."},
                     {"role": "user", "content": prompt}
@@ -129,11 +134,11 @@ JSON 형태로 응답해주세요:
         
         try:
             from openai import OpenAI
-            client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            client = OpenAI(api_key=OPENAI_API_KEY)
             
             response = await asyncio.to_thread(
                 client.chat.completions.create,
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "당신은 키토 다이어트 전문 영양사입니다. 개인의 선호도를 고려한 맞춤 식단을 제공해주세요."},
                     {"role": "user", "content": prompt}
