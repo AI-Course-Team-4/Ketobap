@@ -1,36 +1,18 @@
 """
 데이터베이스 연결 및 모델 정의
-SQLAlchemy를 사용한 ORM 설정 (Supabase PostgreSQL)
+SQLAlchemy를 사용한 ORM 설정 (SQLite)
 """
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
-import os
-from dotenv import load_dotenv
+# SQLite는 별도 환경설정이 필요 없음
 
-# .env 파일에서 환경변수 로드 (에러 무시)
-try:
-    load_dotenv()
-except UnicodeDecodeError:
-    print("⚠️  .env 파일 인코딩 오류 - 환경변수를 직접 설정해주세요")
-except Exception as e:
-    print(f"⚠️  .env 파일 로딩 실패: {e}")
+# SQLite 데이터베이스 설정
+DATABASE_URL = "sqlite:///./keto_app.db"
+print("✅ SQLite 데이터베이스를 사용합니다.")
 
-# Supabase PostgreSQL 데이터베이스 URL
-# 환경변수에서 가져오거나 직접 설정
-SUPABASE_DB_URL = os.getenv("SUPABASE_DB_URL", "")
-
-if not SUPABASE_DB_URL:
-    # 기본값으로 SQLite 사용 (Supabase URL이 없을 때)
-    DATABASE_URL = "sqlite:///./keto_app.db"
-    print("⚠️  SUPABASE_DB_URL이 설정되지 않았습니다. SQLite를 사용합니다.")
-    # SQLite용 엔진 생성
-    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-else:
-    DATABASE_URL = SUPABASE_DB_URL
-    print("✅ Supabase PostgreSQL에 연결합니다.")
-    # PostgreSQL용 엔진 생성
-    engine = create_engine(DATABASE_URL, pool_pre_ping=True, pool_recycle=300)
+# SQLite용 엔진 생성
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
 # 세션 팩토리 생성
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

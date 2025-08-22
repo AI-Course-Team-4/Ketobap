@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { FoodsAPI, NutritionUtils, useUserStore, Food, MealRecommendation } from '@ketobab/shared'
-import FoodCard from '@/components/FoodCard'
+import { GPTMealsAPI, useUserStore, GPTMealRecommendationResponse } from '@ketobab/shared'
+import GPTMealCard from '@/components/GPTMealCard'
 import NutritionChart from '@/components/ui/NutritionChart'
-import { RefreshCw, ArrowLeft, AlertCircle, Utensils, TrendingUp } from 'lucide-react'
+import { RefreshCw, ArrowLeft, AlertCircle, Utensils, TrendingUp, Brain } from 'lucide-react'
 import Link from 'next/link'
 
 export default function RecommendationsPage() {
   const router = useRouter()
   const { preferences, hasPreferences } = useUserStore()
   
-  const [recommendations, setRecommendations] = useState<MealRecommendation | null>(null)
+  const [recommendations, setRecommendations] = useState<GPTMealRecommendationResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -28,52 +28,16 @@ export default function RecommendationsPage() {
     try {
       setError(null)
       
-      // 모든 음식 데이터 가져오기
-      const allFoods = await FoodsAPI.getAllFoods()
+      // GPT API를 사용하여 식단 추천 받기
+      const result = await GPTMealsAPI.recommendMealPlan(preferences)
       
-      if (allFoods.length === 0) {
-        throw new Error('음식 데이터가 없습니다')
+      if (!result) {
+        throw new Error('GPT 서비스에서 식단 추천을 받아올 수 없습니다. 잠시 후 다시 시도해주세요.')
       }
 
-      // 사용자 선호도에 따라 필터링
-      const filteredFoods = NutritionUtils.filterFoodsByPreferences(allFoods, preferences)
-      
-      if (filteredFoods.length < 3) {
-        throw new Error('조건에 맞는 음식이 충분하지 않습니다. 선호도를 조정해보세요.')
-      }
-
-      // 키토 점수가 높은 음식들을 우선 선택
-      const sortedFoods = filteredFoods.sort((a, b) => {
-        // 키토 점수 + 사용자 선호도 점수
-        const aScore = a.keto_score + NutritionUtils.calculatePreferenceScore(a, preferences)
-        const bScore = b.keto_score + NutritionUtils.calculatePreferenceScore(b, preferences)
-        return bScore - aScore
-      })
-
-      // 각 끼니별로 다른 음식 추천 (중복 방지)
-      const usedFoodIds = new Set<number>()
-      const mealTypes: (keyof MealRecommendation)[] = ['breakfast', 'lunch', 'dinner']
-      const recommendedMeals: Partial<MealRecommendation> = {}
-
-      for (const mealType of mealTypes) {
-        const availableFoods = sortedFoods.filter(food => !usedFoodIds.has(food.id))
-        
-        if (availableFoods.length === 0) {
-          // 사용 가능한 음식이 없으면 전체에서 랜덤 선택
-          const randomFood = sortedFoods[Math.floor(Math.random() * sortedFoods.length)]
-          recommendedMeals[mealType] = randomFood
-        } else {
-          // 키토 점수와 선호도를 고려하여 상위 5개 중 랜덤 선택
-          const topFoods = availableFoods.slice(0, Math.min(5, availableFoods.length))
-          const selectedFood = topFoods[Math.floor(Math.random() * topFoods.length)]
-          recommendedMeals[mealType] = selectedFood
-          usedFoodIds.add(selectedFood.id)
-        }
-      }
-
-      setRecommendations(recommendedMeals as MealRecommendation)
+      setRecommendations(result)
     } catch (err) {
-      console.error('추천 생성 실패:', err)
+      console.error('GPT 식단 추천 실패:', err)
       setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다')
     } finally {
       setIsLoading(false)
@@ -94,12 +58,27 @@ export default function RecommendationsPage() {
 
   // 일일 총 영양 정보 계산
   const dailyNutrition = recommendations 
-    ? NutritionUtils.calculateDailyNutrition([
-        recommendations.breakfast,
-        recommendations.lunch,
-        recommendations.dinner
-      ])
+    ? {
+        carbs: parseFloat(recommendations.meal_plan.breakfast.carbs.replace(/[^\d.]/g, '')) + 
+               parseFloat(recommendations.meal_plan.lunch.carbs.replace(/[^\d.]/g, '')) + 
+               parseFloat(recommendations.meal_plan.dinner.carbs.replace(/[^\d.]/g, '')),
+        protein: parseFloat(recommendations.meal_plan.breakfast.protein.replace(/[^\d.]/g, '')) + 
+                 parseFloat(recommendations.meal_plan.lunch.protein.replace(/[^\d.]/g, '')) + 
+                 parseFloat(recommendations.meal_plan.dinner.protein.replace(/[^\d.]/g, '')),
+        fat: parseFloat(recommendations.meal_plan.breakfast.fat.replace(/[^\d.]/g, '')) + 
+             parseFloat(recommendations.meal_plan.lunch.fat.replace(/[^\d.]/g, '')) + 
+             parseFloat(recommendations.meal_plan.dinner.fat.replace(/[^\d.]/g, '')),
+        calories: GPTMealsAPI.calculateCalories(recommendations.meal_plan.breakfast) +
+                  GPTMealsAPI.calculateCalories(recommendations.meal_plan.lunch) +
+                  GPTMealsAPI.calculateCalories(recommendations.meal_plan.dinner),
+        ketoRatio: 0 // 계산은 아래에서
+      }
     : null
+
+  if (dailyNutrition) {
+    const totalCalories = dailyNutrition.calories
+    dailyNutrition.ketoRatio = totalCalories > 0 ? (dailyNutrition.fat * 9) / totalCalories : 0
+  }
 
   if (!hasPreferences()) {
     return null // 리다이렉트 처리 중
@@ -109,9 +88,15 @@ export default function RecommendationsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-700">AI가 맞춤 식단을 분석하고 있어요...</h2>
-          <p className="text-gray-500 mt-2">잠시만 기다려주세요</p>
+          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-primary-500 to-green-500 rounded-2xl flex items-center justify-center animate-pulse">
+            <Brain className="w-10 h-10 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">🧠 GPT가 맞춤 식단을 생성하고 있어요</h2>
+          <p className="text-lg text-gray-600 mb-4">당신의 선호도를 분석하여 완벽한 키토 식단을 추천해드릴게요</p>
+          <div className="flex items-center justify-center space-x-2 text-gray-500">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
+            <span>잠시만 기다려주세요...</span>
+          </div>
         </div>
       </div>
     )
@@ -156,6 +141,7 @@ export default function RecommendationsPage() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               선호도 수정
             </Link>
+<<<<<<< HEAD
             <div className="flex items-center justify-between mb-3">
               <h1 className="text-xl font-bold text-gray-900">오늘의 추천 키토 식단</h1>
               <button
@@ -169,6 +155,11 @@ export default function RecommendationsPage() {
             </div>
             <p className="text-sm text-gray-600">
               당신의 선호도에 맞춰 AI가 추천한 완벽한 키토 식단이에요
+=======
+            <h1 className="text-3xl font-bold text-gray-900">🧠 GPT 맞춤 키토 식단</h1>
+            <p className="text-lg text-gray-600 mt-2">
+              당신의 선호도를 바탕으로 GPT가 생성한 완벽한 키토 식단이에요
+>>>>>>> dev
             </p>
           </div>
 
@@ -218,24 +209,22 @@ export default function RecommendationsPage() {
               </div>
             )}
 
-            {/* Meal Recommendations */}
+            {/* GPT Meal Recommendations */}
             <div className="grid lg:grid-cols-3 gap-6 mb-8">
-              <FoodCard 
-                food={recommendations.breakfast} 
+              <GPTMealCard 
+                mealItem={recommendations.meal_plan.breakfast} 
                 mealType="breakfast"
                 className="animate-slide-up"
               />
-              <FoodCard 
-                food={recommendations.lunch} 
+              <GPTMealCard 
+                mealItem={recommendations.meal_plan.lunch} 
                 mealType="lunch"
                 className="animate-slide-up"
-                style={{ animationDelay: '0.1s' }}
               />
-              <FoodCard 
-                food={recommendations.dinner} 
+              <GPTMealCard 
+                mealItem={recommendations.meal_plan.dinner} 
                 mealType="dinner"
                 className="animate-slide-up"
-                style={{ animationDelay: '0.2s' }}
               />
             </div>
 
