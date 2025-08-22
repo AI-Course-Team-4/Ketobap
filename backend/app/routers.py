@@ -10,6 +10,7 @@ from pydantic import BaseModel
 import random
 
 from .database import get_db, Restaurant, Menu
+# Note: foods 테이블은 아직 데이터가 없으므로 빈 응답 반환
 from .gpt_service import GPTService
 
 router = APIRouter()
@@ -35,6 +36,34 @@ class MenuResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class RestaurantMenuResponse(BaseModel):
+    """식당 메뉴 조합 응답 모델"""
+    id: int
+    menu_name: str
+    keto_score: int
+    is_main: bool
+    restaurant_name: str
+    link: str = None
+    phone: str = None
+    address: str = None
+    
+    class Config:
+        from_attributes = True
+        
+    @classmethod
+    def from_db_row(cls, row):
+        """데이터베이스 row를 모델로 변환"""
+        return cls(
+            id=row[0],
+            menu_name=row[1],
+            keto_score=row[2],
+            is_main=row[3],
+            restaurant_name=row[4],
+            link=row[5],
+            phone=row[6],
+            address=row[7]
+        )
+
 class MenuListResponse(BaseModel):
     """메뉴 목록 응답 모델 (필터링 정보 포함)"""
     menus: List[MenuResponse]
@@ -48,6 +77,48 @@ class MealRecommendationRequest(BaseModel):
     allergies: List[str] = []
 
 # API 엔드포인트 구현
+
+@router.get("/restaurants/top")
+async def get_top_keto_menus(
+    limit: int = Query(default=5, description="반환할 메뉴 개수"),
+    db: Session = Depends(get_db)
+):
+    """
+    키토 점수가 높은 메인 메뉴 목록 조회
+    is_main = 1인 메뉴만 키토 점수 순으로 반환
+    """
+    try:
+        # JOIN을 사용하여 메뉴와 식당 정보를 함께 조회
+        results = db.query(
+            Menu.id,
+            Menu.name.label('menu_name'),
+            Menu.keto_score,
+            Menu.is_main,
+            Restaurant.name.label('restaurant_name'),
+            Restaurant.link,
+            Restaurant.phone,
+            Restaurant.address
+        ).join(Restaurant, Menu.restaurant_id == Restaurant.id).filter(
+            Menu.is_main == True  # 메인 메뉴만
+        ).order_by(Menu.keto_score.desc()).limit(limit).all()
+        
+        # 결과를 딕셔너리로 변환
+        return [
+            {
+                "id": result[0],
+                "menu_name": result[1],
+                "keto_score": result[2],
+                "is_main": bool(result[3]),
+                "restaurant_name": result[4],
+                "link": result[5],
+                "phone": result[6],
+                "address": result[7]
+            }
+            for result in results
+        ]
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"서버 오류: {str(e)}")
 
 @router.get("/restaurants", response_model=List[RestaurantResponse])
 async def get_restaurants(db: Session = Depends(get_db)):
@@ -178,6 +249,74 @@ async def get_restaurant_detail(restaurant_id: int, db: Session = Depends(get_db
             "avg_keto_score": round(menu_stats.avg_keto_score or 0, 1)
         }
     }
+
+@router.get("/restaurants/search")
+async def search_restaurant_menus(
+    minKetoScore: int = Query(default=None, description="최소 키토 점수"),
+    db: Session = Depends(get_db)
+):
+    """
+    필터 조건에 맞는 메인 메뉴 검색
+    """
+    try:
+        # 기본 쿼리 - 메인 메뉴만
+        query = db.query(
+            Menu.id,
+            Menu.name.label('menu_name'),
+            Menu.keto_score,
+            Menu.is_main,
+            Restaurant.name.label('restaurant_name'),
+            Restaurant.link,
+            Restaurant.phone,
+            Restaurant.address
+        ).join(Restaurant, Menu.restaurant_id == Restaurant.id).filter(
+            Menu.is_main == True
+        )
+        
+        # 키토 점수 필터 적용
+        if minKetoScore is not None:
+            query = query.filter(Menu.keto_score >= minKetoScore)
+        
+        results = query.order_by(Menu.keto_score.desc()).all()
+        
+        # 결과를 딕셔너리로 변환
+        return [
+            {
+                "id": result[0],
+                "menu_name": result[1],
+                "keto_score": result[2],
+                "is_main": bool(result[3]),
+                "restaurant_name": result[4],
+                "link": result[5],
+                "phone": result[6],
+                "address": result[7]
+            }
+            for result in results
+        ]
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"서버 오류: {str(e)}")
+
+@router.get("/foods")
+async def get_all_foods():
+    """
+    모든 음식 데이터 조회 (현재 foods 테이블이 비어있으므로 빈 배열 반환)
+    """
+    return []
+
+@router.get("/foods/search")
+async def search_foods():
+    """
+    음식 검색 (현재 foods 테이블이 비어있으므로 빈 배열 반환)
+    """
+    return []
+
+@router.get("/foods/{food_id}")
+async def get_food_by_id(food_id: int):
+    """
+    특정 음식 조회 (현재 foods 테이블이 비어있으므로 null 반환)
+    """
+    return None
 
 @router.get("/stats")
 async def get_system_stats(db: Session = Depends(get_db)):
