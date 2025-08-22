@@ -117,7 +117,7 @@ JSON 형태로만 응답해주세요:
 - 선호 음식을 적극 활용할 것
 - 간단한 조리법 포함
 
-JSON 형태로 응답해주세요:
+반드시 아래 JSON 형태로만 응답해주세요 (다른 텍스트 없이):
 {{
   "breakfast": {{
     "name": "메뉴명",
@@ -127,9 +127,25 @@ JSON 형태로 응답해주세요:
     "fat": "지방g", 
     "protein": "단백질g"
   }},
-  "lunch": {{ ... }},
-  "dinner": {{ ... }}
+  "lunch": {{
+    "name": "메뉴명",
+    "ingredients": ["재료1", "재료2"],
+    "cooking_method": "조리법",
+    "carbs": "탄수화물g",
+    "fat": "지방g", 
+    "protein": "단백질g"
+  }},
+  "dinner": {{
+    "name": "메뉴명",
+    "ingredients": ["재료1", "재료2"],
+    "cooking_method": "조리법",
+    "carbs": "탄수화물g",
+    "fat": "지방g", 
+    "protein": "단백질g"
+  }}
 }}
+
+중요: 반드시 breakfast, lunch, dinner 모두 포함하고, 각각 name, ingredients, cooking_method, carbs, fat, protein 필드를 모두 포함해야 합니다.
 """
         
         try:
@@ -150,12 +166,21 @@ JSON 형태로 응답해주세요:
             result_text = response.choices[0].message.content.strip()
             
             try:
-                return json.loads(result_text)
-            except json.JSONDecodeError:
+                # JSON 텍스트 정리 및 수정
+                cleaned_text = GPTService._clean_json_response(result_text)
+                parsed_result = json.loads(cleaned_text)
+                
+                # JSON 구조 유효성 검사
+                if GPTService._validate_meal_plan_structure(parsed_result):
+                    return parsed_result
+                else:
+                    print(f"⚠️  식단 추천 JSON 구조가 올바르지 않습니다: {cleaned_text}")
+                    return GPTService._get_fallback_meal_plan()
+                    
+            except json.JSONDecodeError as e:
                 print(f"⚠️  식단 추천 JSON 파싱 실패: {result_text}")
-                return {
-                    "error": "식단 추천 생성에 실패했습니다. 다시 시도해주세요."
-                }
+                print(f"파싱 오류 상세: {e}")
+                return GPTService._get_fallback_meal_plan()
                 
         except Exception as e:
             error_msg = str(e)
@@ -174,6 +199,89 @@ JSON 형태로 응답해주세요:
                 return {
                     "error": f"식단 추천 서비스에 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
                 }
+    
+    @staticmethod
+    def _clean_json_response(text: str) -> str:
+        """
+        GPT 응답에서 JSON 부분만 추출하고 정리
+        """
+        # JSON 코드블록 제거
+        if "```json" in text:
+            text = text.split("```json")[1].split("```")[0]
+        elif "```" in text:
+            text = text.split("```")[1].split("```")[0]
+        
+        # 앞뒤 공백 제거
+        text = text.strip()
+        
+        # 불완전한 JSON 구조 수정 시도
+        if text.count("{") > text.count("}"):
+            # 부족한 닫는 중괄호 추가
+            missing_braces = text.count("{") - text.count("}")
+            text += "}" * missing_braces
+        
+        return text
+    
+    @staticmethod
+    def _validate_meal_plan_structure(data: Dict) -> bool:
+        """
+        식단 추천 JSON 구조가 올바른지 검사
+        """
+        required_meals = ["breakfast", "lunch", "dinner"]
+        required_fields = ["name", "ingredients", "cooking_method", "carbs", "fat", "protein"]
+        
+        try:
+            for meal in required_meals:
+                if meal not in data:
+                    return False
+                
+                meal_data = data[meal]
+                if not isinstance(meal_data, dict):
+                    return False
+                
+                for field in required_fields:
+                    if field not in meal_data:
+                        return False
+                    
+                    # ingredients는 리스트여야 함
+                    if field == "ingredients" and not isinstance(meal_data[field], list):
+                        return False
+            
+            return True
+        except:
+            return False
+    
+    @staticmethod
+    def _get_fallback_meal_plan() -> Dict:
+        """
+        파싱 실패시 사용할 기본 식단 계획
+        """
+        return {
+            "breakfast": {
+                "name": "아보카도 계란 샐러드",
+                "ingredients": ["계란 2개", "아보카도 1개", "올리브오일 1큰술", "소금", "후추"],
+                "cooking_method": "계란을 삶아 껍질을 벗기고 잘게 썹니다. 아보카도를 반으로 잘라 과육을 떠내어 계란과 섞고 올리브오일, 소금, 후추로 간합니다.",
+                "carbs": "6g",
+                "fat": "28g",
+                "protein": "14g"
+            },
+            "lunch": {
+                "name": "연어 구이와 시금치 샐러드",
+                "ingredients": ["연어 150g", "시금치 100g", "올리브오일 2큰술", "레몬즙", "소금", "후추"],
+                "cooking_method": "팬에 연어를 구워줍니다. 시금치는 살짝 데쳐서 올리브오일, 레몬즙, 소금, 후추로 무쳐줍니다.",
+                "carbs": "4g",
+                "fat": "32g",
+                "protein": "28g"
+            },
+            "dinner": {
+                "name": "치킨 가슴살 스테이크와 브로콜리",
+                "ingredients": ["치킨 가슴살 150g", "브로콜리 100g", "버터 2큰술", "마늘 2쪽", "소금", "후추"],
+                "cooking_method": "치킨 가슴살에 소금, 후추로 간하고 팬에 구워줍니다. 브로콜리는 찜기에 쪄서 버터와 마늘로 볶아줍니다.",
+                "carbs": "8g",
+                "fat": "26g",
+                "protein": "32g"
+            }
+        }
 
 # 사용 예시
 if __name__ == "__main__":
