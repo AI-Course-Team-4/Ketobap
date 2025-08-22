@@ -1,6 +1,4 @@
-import { supabase } from '../config/supabase';
 import { Food, SearchFilters } from '../types';
-import { MOCK_FOODS } from './mockData';
 
 export class FoodsAPI {
   /**
@@ -8,20 +6,14 @@ export class FoodsAPI {
    */
   static async getAllFoods(): Promise<Food[]> {
     try {
-      const { data, error } = await supabase
-        .from('foods')
-        .select('*')
-        .order('keto_score', { ascending: false });
+      // 백엔드 API 호출
+      const response = await fetch('http://localhost:8000/foods');
+      const result = await response.json();
 
-      if (error) {
-        console.warn('Supabase에서 데이터 조회 실패, 로컬 데이터 사용:', error);
-        return MOCK_FOODS.sort((a, b) => b.keto_score - a.keto_score);
-      }
-
-      return data || MOCK_FOODS;
+      return Array.isArray(result) ? result : [];
     } catch (error) {
-      console.warn('데이터베이스 연결 실패, 로컬 데이터 사용:', error);
-      return MOCK_FOODS.sort((a, b) => b.keto_score - a.keto_score);
+      console.error('백엔드 API 호출 실패:', error);
+      return [];
     }
   }
 
@@ -29,38 +21,30 @@ export class FoodsAPI {
    * 필터 조건에 맞는 음식을 검색합니다
    */
   static async searchFoods(filters: SearchFilters): Promise<Food[]> {
-    let query = supabase
-      .from('foods')
-      .select('*');
+    try {
+      // 검색 파라미터 구성
+      const params = new URLSearchParams();
+      if (filters.minKetoScore) {
+        params.append('minKetoScore', filters.minKetoScore.toString());
+      }
+      if (filters.maxCarbs) {
+        params.append('maxCarbs', filters.maxCarbs.toString());
+      }
+      if (filters.includeTags && filters.includeTags.length > 0) {
+        params.append('includeTags', filters.includeTags.join(','));
+      }
+      if (filters.excludeTags && filters.excludeTags.length > 0) {
+        params.append('excludeTags', filters.excludeTags.join(','));
+      }
 
-    // 키토 점수 필터
-    if (filters.minKetoScore) {
-      query = query.gte('keto_score', filters.minKetoScore);
+      const response = await fetch(`http://localhost:8000/foods/search?${params.toString()}`);
+      const result = await response.json();
+
+      return Array.isArray(result) ? result : [];
+    } catch (error) {
+      console.error('백엔드 API 호출 실패:', error);
+      return [];
     }
-
-    // 탄수화물 필터
-    if (filters.maxCarbs) {
-      query = query.lte('carbs', filters.maxCarbs);
-    }
-
-    // 태그 포함 필터
-    if (filters.includeTags && filters.includeTags.length > 0) {
-      query = query.overlaps('tags', filters.includeTags);
-    }
-
-    // 태그 제외 필터
-    if (filters.excludeTags && filters.excludeTags.length > 0) {
-      query = query.not('tags', 'overlap', filters.excludeTags);
-    }
-
-    const { data, error } = await query.order('keto_score', { ascending: false });
-
-    if (error) {
-      console.error('음식 검색 실패:', error);
-      throw new Error('음식 검색에 실패했습니다');
-    }
-
-    return data || [];
   }
 
   /**
@@ -82,17 +66,14 @@ export class FoodsAPI {
    * ID로 특정 음식을 가져옵니다
    */
   static async getFoodById(id: number): Promise<Food | null> {
-    const { data, error } = await supabase
-      .from('foods')
-      .select('*')
-      .eq('id', id)
-      .single();
+    try {
+      const response = await fetch(`http://localhost:8000/foods/${id}`);
+      const result = await response.json();
 
-    if (error) {
-      console.error('음식 조회 실패:', error);
+      return result && typeof result === 'object' ? result as Food : null;
+    } catch (error) {
+      console.error('백엔드 API 호출 실패:', error);
       return null;
     }
-
-    return data;
   }
 }
