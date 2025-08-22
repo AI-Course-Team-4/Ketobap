@@ -55,7 +55,7 @@ ketobab/
 ### 1. 프로젝트 클론
 
 ```bash
-git clone https://github.com/your-username/ketobab.git
+git clone https://github.com/soohwan93/miniProject-Team4-AICourse.git
 cd ketobab
 ```
 
