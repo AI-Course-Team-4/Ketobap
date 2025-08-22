@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { GPTMealsAPI, useUserStore, GPTMealRecommendationResponse } from '@ketobab/shared'
 import GPTMealCard from '@/components/GPTMealCard'
 import NutritionChart from '@/components/ui/NutritionChart'
+import TestLogger from '@/components/TestLogger'
 import { RefreshCw, ArrowLeft, AlertCircle, Utensils, TrendingUp, Brain } from 'lucide-react'
 import Link from 'next/link'
 
@@ -46,6 +47,9 @@ export default function RecommendationsPage() {
   }
 
   const handleRefresh = () => {
+    // 중복 클릭 방지
+    if (isRefreshing || isLoading) return
+    
     setIsRefreshing(true)
     generateRecommendations()
   }
@@ -54,7 +58,7 @@ export default function RecommendationsPage() {
     if (hasPreferences()) {
       generateRecommendations()
     }
-  }, [hasPreferences])
+  }, []) // 빈 의존성 배열로 한 번만 실행
 
   // 일일 총 영양 정보 계산
   const dailyNutrition = recommendations 
@@ -129,6 +133,14 @@ export default function RecommendationsPage() {
 
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      {/* 개발용 로깅 컴포넌트 */}
+      {process.env.NODE_ENV === 'development' && (
+        <TestLogger 
+          componentName="RecommendationsPage" 
+          onMount={() => console.log('🎯 추천 페이지 마운트됨')}
+        />
+      )}
+      
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 sm:mb-8">

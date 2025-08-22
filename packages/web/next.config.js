@@ -1,11 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['@ketobab/shared'],
-  env: {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    HUGGING_FACE_TOKEN: process.env.HUGGING_FACE_TOKEN,
-  },
+  
+  // React Strict Mode 비활성화 (개발 모드에서 이중 실행 방지)
+  reactStrictMode: false,
+  
+  // env 설정 제거: 현재 SQLite 사용 중이므로 Supabase 환경변수 불필요
   webpack: (config, { isServer }) => {
     // 클라이언트 사이드에서 Node.js 전용 모듈들을 제외
     if (!isServer) {

@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:strict": "next dev --strict",
+    "dev:prod": "NODE_ENV=production next dev",
+    "test:strict": "cp next.config.prod.js next.config.js && npm run dev",
+    "test:no-strict": "cp next.config.js.backup next.config.js && npm run dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

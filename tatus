@@ -1,0 +1,24 @@
+
+                   SSUUMMMMAARRYY OOFF LLEESSSS CCOOMMMMAANNDDSS
+
+      Commands marked with * may be preceded by a number, _N.
+      Notes in parentheses indicate the behavior if _N is given.
+      A key preceded by a caret indicates the Ctrl key; thus ^K is ctrl-K.
+
+  h  H                 Display this help.
+  q  :q  Q  :Q  ZZ     Exit.
+ ---------------------------------------------------------------------------
+
+                           MMOOVVIINNGG
+
+  e  ^E  j  ^N  CR  *  Forward  one line   (or _N lines).
+  y  ^Y  k  ^K  ^P  *  Backward one line   (or _N lines).
+  ESC-j             *  Forward  one file line (or _N file lines).
+  ESC-k             *  Backward one file line (or _N file lines).
+[33mbc8226c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m)[m cleanup: add temporary file to be removed later
+[33m6f0a3eb[m cleanup: remove unused env.example file
+[33mf536d4a[m feat: add development npm scripts
+[33m404a987[m fix: RestaurantCard 컴포넌트 TypeScript 에러 해결
+[33m2b8c140[m feat: React 컴포넌트 중복 실행 방지 안전장치 구현
+[33m6ca0e68[m feat: 프롬프트 시스템 구조화 및 팀원별 실험 환경 구축
+[33mf68d6d3[m fix: React Strict Mode 비활성화로 이중 API 호출 문제 해결
