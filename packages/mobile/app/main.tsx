@@ -60,19 +60,19 @@ export default function Main() {
                 scrollEventThrottle={16}
             >
                 <View style={styles.pageContainer}>
-                    <Notice1 />
+                    <Notice1 currentPage={currentPage} />
                 </View>
 
                 <View style={styles.pageContainer}>
-                    <Notice2 />
+                    <Notice2 currentPage={currentPage} />
                 </View>
 
                 <View style={styles.pageContainer}>
-                    <Notice3 />
+                    <Notice3 currentPage={currentPage} />
                 </View>
 
                 <View style={styles.pageContainer}>
-                    <Notice4 />
+                    <Notice4 currentPage={currentPage} />
                 </View>
             </ScrollView>
 
