@@ -1,6 +1,20 @@
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+
+type TabParamList = {
+    Favorites: undefined;
+    Food: undefined;
+    Home: undefined;
+    Restaurant: undefined;
+    Mypage: undefined;
+};
+
+type NavigationProp = BottomTabNavigationProp<TabParamList>;
 
 export default function Notice4() {
+    const navigation = useNavigation<NavigationProp>();
+
     return (
         <View style={styles.container}>
             <View style={styles.titleWrapper}>
@@ -16,13 +30,23 @@ export default function Notice4() {
             </View>
             <Text style={styles.subtitle}>회원가입 없이 바로 사용 가능한 AI 키토 식단 추천</Text>
 
-            <View style={styles.first_button}>
-                <Text style={styles.button_text}><Text style={{color: '#fff'}}>식단 추천 받기</Text> <Text style={{color: '#919E7B'}}>{'>'}</Text></Text>
-            </View>
+            <TouchableOpacity
+                style={styles.first_button}
+                onPress={() => {
+                    navigation.navigate('Favorites');
+                }}
+            >
+                <Text style={styles.button_text}><Text style={{ color: '#fff' }}>식단 추천 받기</Text> <Text style={{ color: '#919E7B' }}>{'>'}</Text></Text>
+            </TouchableOpacity>
 
-            <View style={styles.second_button}>
-                <Text style={styles.button_text}><Text style={{color: '#819751'}}>강남 맛집 보기</Text> {'>'}</Text>
-            </View>
+            <TouchableOpacity
+                style={styles.second_button}
+                onPress={() => {
+                    navigation.navigate('Restaurant');
+                }}
+            >
+                <Text style={styles.button_text}><Text style={{ color: '#819751' }}>강남 맛집 보기</Text> {'>'}</Text>
+            </TouchableOpacity>
         </View>
     );
 }
@@ -36,7 +60,6 @@ const styles = StyleSheet.create({
     titleWrapper: {
         position: 'relative',
         alignItems: 'center',
-        marginBottom: 20,
         width: '100%',
     },
     leftIcon: {
@@ -71,10 +94,10 @@ const styles = StyleSheet.create({
         fontFamily: 'NotoSans',
         textAlign: 'center',
         color: '#658C0F',
-        marginBottom: 30,
+        marginBottom: 50,
     },
     button_text: {
-        fontSize: 32,
+        fontSize: 30,
         fontFamily: 'Jua-Regular',
         textAlign: 'center',
     },

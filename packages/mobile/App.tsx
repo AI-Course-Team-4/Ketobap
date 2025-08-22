@@ -11,30 +11,30 @@ import Mypage from "./app/mypage";
 
 // 각 화면을 TopContainer 스타일로 감싸기
 function TopWrapper({ children }) {
-    return <View style={styles.topContainer}>{children}</View>;
+  return <View style={styles.topContainer}>{children}</View>;
 }
 
 function LikeScreen() {
-    return <TopWrapper><Like /></TopWrapper>;
+  return <TopWrapper><Like /></TopWrapper>;
 }
 function KetoScreen() {
-    return <TopWrapper><Keto /></TopWrapper>;
+  return <TopWrapper><Keto /></TopWrapper>;
 }
 function HomeScreen() {
-    return <TopWrapper><Main /></TopWrapper>;
+  return <TopWrapper><Main /></TopWrapper>;
 }
 function RestaurantScreen() {
-    return <TopWrapper><Restaurant /></TopWrapper>;
+  return <TopWrapper><Restaurant /></TopWrapper>;
 }
 function MypageScreen() {
-    return <TopWrapper><Mypage /></TopWrapper>;
+  return <TopWrapper><Mypage /></TopWrapper>;
 }
 
 const Tab = createBottomTabNavigator();
 
 export default function App() {
-    return (
-        <NavigationContainer>
+  return (
+    <NavigationContainer>
       <Tab.Navigator
         initialRouteName="Home"
         screenOptions={({ route }) => ({
@@ -51,8 +51,8 @@ export default function App() {
           },
           tabBarActiveTintColor: '#8E9E6A',
           tabBarInactiveTintColor: '#C2CCAA',
-          tabBarStyle: { 
-            height: 60, 
+          tabBarStyle: {
+            height: 60,
             backgroundColor: '#E4EBD6',
           },
           tabBarLabelStyle: { display: 'none' },
@@ -68,15 +68,15 @@ export default function App() {
         <Tab.Screen name="Mypage" component={MypageScreen} />
       </Tab.Navigator>
     </NavigationContainer>
-    );
+  );
 }
 
 const styles = StyleSheet.create({
-    topContainer: {
-      flex: 1,
-      width: '100%',
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#F9FEE8',
-    },
-  });
+  topContainer: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F9FEE8',
+  },
+});
