@@ -4,6 +4,7 @@ export * from './types';
 // API
 export * from './api/foods';
 export * from './api/restaurants';
+export * from './api/gptMeals';
 
 // AI
 export * from './ai/huggingface';

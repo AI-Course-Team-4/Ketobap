@@ -66,3 +66,31 @@ export interface SearchFilters {
   excludeTags?: string[];
   includeTags?: string[];
 }
+
+// GPT 식단 추천 관련 타입
+export interface GPTMealItem {
+  name: string;
+  ingredients: string[];
+  cooking_method: string;
+  carbs: string;
+  fat: string;
+  protein: string;
+}
+
+export interface GPTMealPlan {
+  breakfast: GPTMealItem;
+  lunch: GPTMealItem;
+  dinner: GPTMealItem;
+}
+
+export interface GPTMealRecommendationRequest {
+  preferred_foods: string[];
+  disliked_foods: string[];
+  allergies: string[];
+}
+
+export interface GPTMealRecommendationResponse {
+  meal_plan: GPTMealPlan;
+  user_preferences: GPTMealRecommendationRequest;
+  generated_at: string;
+}

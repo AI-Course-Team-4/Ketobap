@@ -27,7 +27,7 @@ app.add_middleware(
 app.include_router(router)
 
 # 정적 파일 서빙 (프론트엔드)
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
+# app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 # 헬스체크 엔드포인트
 @app.get("/")
