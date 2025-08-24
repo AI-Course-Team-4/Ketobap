@@ -222,7 +222,11 @@ async def recommend_meal(request: MealRecommendationRequest):
         return {
             "meal_plan": meal_plan,
             "user_preferences": preferences,
-            "generated_at": "실시간 생성됨"
+            "generated_at": "실시간 생성됨",
+            "prompt_info": {
+                "used_prompt": current_prompt_version,
+                "message": f"{current_prompt_version}의 프롬프트 적용중.."
+            }
         }
         
     except HTTPException:

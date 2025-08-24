@@ -62,6 +62,9 @@ class ImprovedMealPlanPrompt(MealPlanPrompt):
         
         return base_message + improvements
 
+# soohwan 프롬프트 import
+from .individual_prompts.soohwan_prompts import SoohwanMenuAnalysisPrompt, SoohwanMealPlanPrompt
+
 # 팀원별 프롬프트 등록 시스템
 TEAM_PROMPTS = {
     "default": {
@@ -71,6 +74,10 @@ TEAM_PROMPTS = {
     "improved": {
         "menu_analysis": ImprovedMenuAnalysisPrompt(), 
         "meal_plan": ImprovedMealPlanPrompt()
+    },
+    "soohwan": {
+        "menu_analysis": SoohwanMenuAnalysisPrompt(),
+        "meal_plan": SoohwanMealPlanPrompt()
     }
     # 팀원들이 여기에 추가: "김철수": {...}, "이영희": {...}
 }

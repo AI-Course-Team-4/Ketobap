@@ -36,6 +36,14 @@ export default function RecommendationsPage() {
         throw new Error('GPT 서비스에서 식단 추천을 받아올 수 없습니다. 잠시 후 다시 시도해주세요.')
       }
 
+      // 프롬프트 정보 콘솔 출력
+      if (result.prompt_info) {
+        console.log('🎯 ================================')
+        console.log(`🤖 ${result.prompt_info.message}`)
+        console.log(`📋 사용된 프롬프트: ${result.prompt_info.used_prompt}`)
+        console.log('🎯 ================================')
+      }
+
       setRecommendations(result)
     } catch (err) {
       console.error('GPT 식단 추천 실패:', err)

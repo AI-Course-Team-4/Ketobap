@@ -93,4 +93,8 @@ export interface GPTMealRecommendationResponse {
   meal_plan: GPTMealPlan;
   user_preferences: GPTMealRecommendationRequest;
   generated_at: string;
+  prompt_info?: {
+    used_prompt: string;
+    message: string;
+  };
 }
