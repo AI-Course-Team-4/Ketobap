@@ -107,6 +107,12 @@ class SoohwanMealPlanPrompt(MealPlanPrompt):
 
 ⚠️ 중요: 사용자가 비선호한다고 명시한 음식은 어떤 경우에도 사용하지 마세요!
 
+🔄 메뉴 다양성 필수:
+- 매번 새로운 요청 시 완전히 다른 메뉴 생성
+- 같은 재료라도 다른 조리법과 음식명 사용
+- 예: "아보카도 샐러드" → "아보카도 치킨 볼", "연어구이" → "연어 스테이크"
+- 창의적이고 독창적인 메뉴명과 구성으로 다양성 확보
+
 🎯 사용자 선호도 우선 원칙:
 1. ⚠️ 비선호/알레르기 음식은 절대 사용 금지
 2. ✅ 선호 음식은 하루 중 최대 1끼에만 사용 (중복 금지)
@@ -146,6 +152,15 @@ class SoohwanMealPlanPrompt(MealPlanPrompt):
 이래야 "완벽한 키토 비율" 메시지가 표시됩니다."""
 
     def format_user_message(self, preferences: Dict) -> str:
+        # 다양성 시드가 있으면 활용
+        diversity_instruction = ""
+        if "diversity_seed" in preferences:
+            diversity_instruction = f"""
+
+🎲 특별 요청: {preferences['diversity_seed']} 구성해주세요.
+⚠️ 중요: 일반적이거나 흔한 메뉴가 아닌, 독창적이고 새로운 메뉴를 만들어주세요.
+예시처럼 똑같은 패턴을 피하고 완전히 다른 조리법과 이름을 사용하세요."""
+        
         base_message = super().format_user_message(preferences)
         
         # 시간대별 맞춤 배치 가이드
@@ -180,8 +195,9 @@ class SoohwanMealPlanPrompt(MealPlanPrompt):
 1. 비선호 음식 리스트에 있는 음식은 절대 사용 금지
 2. 알레르기 음식 리스트에 있는 음식은 절대 사용 금지  
 3. ⭐ 선호 음식도 하루 중 최대 1끼에만 사용 (중복 금지)
-4. 대신 올리브오일, 견과류, 치즈, 버터 등으로 지방 보완
-5. 키토 점수 75점 이상 유지하면서 사용자 선호도 최우선
+4. 🔄 매번 완전히 새로운 메뉴명과 구성으로 다양성 확보
+5. 대신 올리브오일, 견과류, 치즈, 버터 등으로 지방 보완
+6. 키토 점수 75점 이상 유지하면서 사용자 선호도 최우선
 
 🍽️ 다양성 확보 예시:
 - 브로콜리 선호 시: 점심에 브로콜리 샐러드, 아침은 시금치, 저녁은 양상추
@@ -192,13 +208,13 @@ JSON 응답에서 선호 음식이 어느 끼니에 배치되었는지 명확히
 비선호 음식은 절대 포함하지 말고, 선호 음식은 1끼에만 사용하며,
 나머지 끼니는 다양한 키토 친화적 대안으로 구성해주세요."""
         
-        return base_message + my_improvements
+        return base_message + diversity_instruction + my_improvements
 
     def get_model_config(self) -> Dict[str, Any]:
         return {
             "model": "gpt-4o-mini",
             "max_tokens": 1200,  # 시간대별 상세 분석을 위해 증가
-            "temperature": 0.4   # 일관된 시간대 배치를 위해 조정
+            "temperature": 0.9   # 다양성을 위해 높은 창의성
         }
 
 # 실험할 때 이 부분을 team_prompts.py에 추가하세요:

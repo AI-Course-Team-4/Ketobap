@@ -29,13 +29,18 @@ export default function RecommendationsPage() {
   const generateRecommendations = async () => {
     try {
       setError(null)
+      console.log('🚀 새로운 식단 요청 시작...')
+      console.log('📋 현재 preferences:', preferences)
       
       // GPT API를 사용하여 식단 추천 받기
       const result = await GPTMealsAPI.recommendMealPlan(preferences)
       
       if (!result) {
+        console.log('❌ GPT 결과가 null임')
         throw new Error('GPT 서비스에서 식단 추천을 받아올 수 없습니다. 잠시 후 다시 시도해주세요.')
       }
+
+      console.log('✅ GPT 응답 받음:', result)
 
       // 프롬프트 정보 콘솔 출력
       if (result.prompt_info) {
@@ -45,7 +50,20 @@ export default function RecommendationsPage() {
         console.log('🎯 ================================')
       }
 
+      // 메뉴명 비교
+      if (recommendations) {
+        console.log('📊 메뉴 변경 비교:')
+        console.log('이전 아침:', recommendations.meal_plan.breakfast.name)
+        console.log('새로운 아침:', result.meal_plan.breakfast.name)
+        console.log('이전 점심:', recommendations.meal_plan.lunch.name)
+        console.log('새로운 점심:', result.meal_plan.lunch.name)
+        console.log('이전 저녁:', recommendations.meal_plan.dinner.name)
+        console.log('새로운 저녁:', result.meal_plan.dinner.name)
+      }
+
+      console.log('🔄 setRecommendations 호출 전')
       setRecommendations(result)
+      console.log('✅ setRecommendations 호출 완료')
     } catch (err) {
       console.error('GPT 식단 추천 실패:', err)
       setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다')
@@ -204,6 +222,23 @@ export default function RecommendationsPage() {
             </button>
           </div>
         </div>
+
+        {/* Refreshing Overlay - 더 크고 눈에 띄게 */}
+        {isRefreshing && (
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+            <div className="bg-white rounded-3xl p-12 text-center shadow-2xl max-w-md mx-4 border-4 border-primary-200">
+              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-primary-500 to-green-500 rounded-3xl flex items-center justify-center animate-bounce">
+                <Brain className="w-12 h-12 text-white animate-pulse" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">🔄 새로운 식단 생성 중</h2>
+              <p className="text-lg text-gray-600 mb-6">GPT가 더 나은 키토 식단을 추천해드릴게요</p>
+              <div className="flex items-center justify-center space-x-3 text-gray-500">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-3 border-primary-600"></div>
+                <span className="text-lg font-medium">잠시만 기다려주세요...</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {recommendations && (
           <>

@@ -108,6 +108,7 @@ class GPTService:
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": user_message}
                 ],
+                response_format={"type": "json_object"},
                 **model_config
             )
             

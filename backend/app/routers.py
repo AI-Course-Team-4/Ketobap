@@ -213,11 +213,53 @@ async def recommend_meal(request: MealRecommendationRequest):
             "allergies": request.allergies
         }
         
-        meal_plan = await gpt_service.recommend_meal_plan(preferences)
+        print(f"🔄 새로운 식단 요청 (프롬프트: {current_prompt_version})")
+        
+        # 메뉴명 다양성을 위한 랜덤 시드 추가
+        import random
+        import time
+        
+        def add_randomness_to_preferences(prefs):
+            # 타임스탬프와 랜덤 요소를 추가해서 GPT가 다른 결과를 생성하도록 유도
+            timestamp = str(int(time.time() * 1000))  # 밀리초까지 사용
+            random_number = random.randint(100, 999)
+            
+            styles = [
+                "창의적이고 독특한", "새롭고 혁신적인", "특별하고 다른", 
+                "독창적이고 흥미로운", "매력적이고 신선한", "참신하고 유니크한",
+                "이국적이고 특색있는", "정통하면서도 새로운", "실험적이고 도전적인"
+            ]
+            
+            cooking_methods = [
+                "그릴 요리", "팬프라이 요리", "로스팅 요리", "브레이징 요리",
+                "스팀 요리", "스모킹 요리", "컨핏 요리", "수비드 요리"
+            ]
+            
+            style = random.choice(styles)
+            method = random.choice(cooking_methods)
+            
+            prefs_copy = prefs.copy()
+            prefs_copy["diversity_seed"] = f"{style} {method} 스타일로 #{random_number}{timestamp[-4:]}"
+            return prefs_copy
+        
+        # 다양성을 위한 선호도 수정
+        diverse_preferences = add_randomness_to_preferences(preferences)
+        print(f"🎲 다양성 시드: {diverse_preferences.get('diversity_seed', '없음')}")
+        meal_plan = await gpt_service.recommend_meal_plan(diverse_preferences)
         
         # 에러 체크
         if "error" in meal_plan:
             raise HTTPException(status_code=500, detail=meal_plan["error"])
+        
+        print(f"✅ GPT 응답 완료:")
+        if "breakfast" in meal_plan:
+            print(f"   아침: {meal_plan['breakfast'].get('name', '이름없음')}")
+        if "lunch" in meal_plan:
+            print(f"   점심: {meal_plan['lunch'].get('name', '이름없음')}")
+        if "dinner" in meal_plan:
+            print(f"   저녁: {meal_plan['dinner'].get('name', '이름없음')}")
+        else:
+            print(f"   전체 응답: {meal_plan}")
         
         # 키토 점수 검증 (75점 미만이면 재생성)
         def calculate_keto_score(meal_item):
@@ -328,10 +370,15 @@ async def recommend_meal(request: MealRecommendationRequest):
         no_duplicates = check_ingredient_duplicates(meal_plan)
         retry_count = 0
         
+        # 이미 위에서 diverse_preferences 설정됨
+        
         while (avg_score < 70 or ratio_count < 2 or not no_duplicates) and retry_count < 2:
             duplicate_msg = "" if no_duplicates else " (재료 중복 있음)"
             print(f"키토 기준 미달 (평균 {avg_score:.1f}점, 완벽한 비율 {ratio_count}/3끼{duplicate_msg}). 재생성 중... ({retry_count + 1}/2)")
-            meal_plan = await gpt_service.recommend_meal_plan(preferences)
+            
+            # 재생성 시에도 다양성 시드 업데이트
+            diverse_preferences = add_randomness_to_preferences(preferences)
+            meal_plan = await gpt_service.recommend_meal_plan(diverse_preferences)
             if "error" in meal_plan:
                 break
                 
