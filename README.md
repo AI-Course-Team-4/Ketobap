@@ -289,6 +289,123 @@ git push -u origin feature/음식추천알고리즘개선
 # dev 브랜치로 PR 요청
 ```
 
+#### 🚀 브랜치 병합 과정 (팀원별 작업 흐름)
+
+**중요: 각 팀원의 작업은 독립적인 브랜치에서 진행되며, merge를 통해 dev에 통합됩니다.**
+
+##### 1단계: 개인 브랜치에서 작업 완료
+```bash
+# 예: full_sh, team_member_a, team_member_b 등의 개인 브랜치
+git checkout full_sh  # 또는 다른 팀원의 브랜치명
+
+# 작업 수행 후 커밋
+git add .
+git commit -m "feat: 작업 내용 설명"
+```
+
+##### 2단계: dev 브랜치 최신화
+```bash
+# dev 브랜치로 이동
+git checkout dev
+
+# origin dev에서 최신 코드 받기 (다른 팀원의 작업 반영)
+git pull origin dev
+```
+
+##### 3단계: 개인 브랜치를 dev에 병합
+```bash
+# dev 브랜치에서 개인 브랜치 병합
+git merge full_sh  # 또는 다른 팀원의 브랜치명
+
+# 충돌이 발생한다면 해결 후
+git add .
+git commit -m "merge: full_sh 브랜치 병합 - 작업 내용 요약"
+```
+
+##### 4단계: dev 브랜치에 push
+```bash
+# 병합된 dev 브랜치를 원격에 push
+git push origin dev
+```
+
+#### 🔄 팀원별 병합 시나리오
+
+**시나리오 1: full_sh 팀원의 작업 병합**
+```bash
+# full_sh에서 작업 완료
+git checkout full_sh
+git add .
+git commit -m "feat: 키토 점수 계산 알고리즘 개선"
+
+# dev로 이동하여 최신화
+git checkout dev
+git pull origin dev
+
+# full_sh 병합
+git merge full_sh
+git push origin dev
+```
+
+**시나리오 2: team_member_a 팀원의 작업 병합**
+```bash
+# team_member_a에서 작업 완료
+git checkout team_member_a
+git add .
+git commit -m "feat: UI 컴포넌트 개선"
+
+# dev로 이동하여 최신화
+git checkout dev
+git pull origin dev
+
+# team_member_a 병합
+git merge team_member_a
+git push origin dev
+```
+
+**시나리오 3: team_member_b 팀원의 작업 병합**
+```bash
+# team_member_b에서 작업 완료
+git checkout team_member_b
+git add .
+git commit -m "fix: 데이터베이스 연결 오류 수정"
+
+# dev로 이동하여 최신화
+git checkout dev
+git pull origin dev
+
+# team_member_b 병합
+git merge team_member_b
+git push origin dev
+```
+
+#### ⚠️ 병합 시 주의사항
+
+1. **항상 dev 브랜치를 최신화한 후 병합**
+   - `git pull origin dev`로 다른 팀원의 작업을 먼저 받기
+   - 충돌 가능성 최소화
+
+2. **충돌 발생 시 해결 방법**
+   ```bash
+   # 충돌 파일 확인
+   git status
+   
+   # 충돌 해결 후
+   git add .
+   git commit -m "resolve: 충돌 해결 - 작업 내용"
+   ```
+
+3. **병합 후 브랜치 정리 (선택사항)**
+   ```bash
+   # 병합 완료된 개인 브랜치 삭제
+   git branch -d full_sh
+   git push origin --delete full_sh
+   ```
+
+4. **팀원 간 작업 순서**
+   - 한 번에 한 명씩 병합 진행
+   - 병합 완료 후 다음 팀원 작업
+   - 동시 병합으로 인한 충돌 방지
+
 ### 커밋 메시지 규칙
 
 #### 커밋 타입
