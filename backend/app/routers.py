@@ -219,6 +219,136 @@ async def recommend_meal(request: MealRecommendationRequest):
         if "error" in meal_plan:
             raise HTTPException(status_code=500, detail=meal_plan["error"])
         
+        # 키토 점수 검증 (75점 미만이면 재생성)
+        def calculate_keto_score(meal_item):
+            try:
+                # 영양소에서 숫자 추출
+                carbs = float(meal_item.get("carbs", "0").replace("g", ""))
+                fat = float(meal_item.get("fat", "0").replace("g", ""))  
+                protein = float(meal_item.get("protein", "0").replace("g", ""))
+                
+                total_calories = (carbs * 4) + (fat * 9) + (protein * 4)
+                if total_calories == 0:
+                    return 0
+                    
+                fat_ratio = (fat * 9) / total_calories
+                carb_ratio = (carbs * 4) / total_calories  
+                protein_ratio = (protein * 4) / total_calories
+                
+                score = 0
+                # 지방 비율 점수 (40점)
+                if fat_ratio >= 0.72 and fat_ratio <= 0.78:
+                    score += 40
+                elif fat_ratio >= 0.68 and fat_ratio <= 0.82:
+                    score += 35
+                elif fat_ratio >= 0.60:
+                    score += max(0, 30 - abs(fat_ratio - 0.725) * 100)
+                else:
+                    score += fat_ratio * 50
+                
+                # 탄수화물 비율 점수 (35점)
+                if carb_ratio <= 0.03:
+                    score += 35
+                elif carb_ratio <= 0.08:
+                    score += 35
+                elif carb_ratio <= 0.15:
+                    score += 20
+                else:
+                    score += max(0, 20 - (carb_ratio - 0.15) * 200)
+                
+                # 단백질 비율 점수 (25점)
+                if protein_ratio >= 0.22 and protein_ratio <= 0.25:
+                    score += 25
+                elif protein_ratio >= 0.18 and protein_ratio <= 0.28:
+                    score += 20
+                elif protein_ratio >= 0.15 and protein_ratio <= 0.32:
+                    score += 15
+                elif protein_ratio < 0.15:
+                    score += max(0, 15 - (0.15 - protein_ratio) * 100)
+                else:
+                    score += max(0, 15 - (protein_ratio - 0.3) * 100)
+                
+                return min(100, max(0, score))
+            except:
+                return 0
+        
+        # 각 끼니의 키토 점수 확인
+        breakfast_score = calculate_keto_score(meal_plan.get("breakfast", {}))
+        lunch_score = calculate_keto_score(meal_plan.get("lunch", {}))  
+        dinner_score = calculate_keto_score(meal_plan.get("dinner", {}))
+        
+        # 키토 비율도 확인
+        def check_keto_ratio(meal_item):
+            try:
+                carbs = float(meal_item.get("carbs", "0").replace("g", ""))
+                fat = float(meal_item.get("fat", "0").replace("g", ""))
+                protein = float(meal_item.get("protein", "0").replace("g", ""))
+                
+                total_calories = (carbs * 4) + (fat * 9) + (protein * 4)
+                if total_calories == 0:
+                    return False
+                    
+                fat_ratio = (fat * 9) / total_calories
+                carb_ratio = (carbs * 4) / total_calories
+                protein_ratio = (protein * 4) / total_calories
+                
+                # 키토 비율 기준: 지방 68%+, 탄수화물 12%-, 단백질 18-25%
+                return (fat_ratio >= 0.68 and carb_ratio <= 0.12 and 
+                       protein_ratio >= 0.18 and protein_ratio <= 0.25)
+            except:
+                return False
+        
+        # 비율 체크
+        breakfast_ratio_ok = check_keto_ratio(meal_plan.get("breakfast", {}))
+        lunch_ratio_ok = check_keto_ratio(meal_plan.get("lunch", {}))
+        dinner_ratio_ok = check_keto_ratio(meal_plan.get("dinner", {}))
+        
+        # 선호 음식 중복 체크
+        def check_ingredient_duplicates(meal_plan):
+            breakfast_ingredients = meal_plan.get("breakfast", {}).get("ingredients", [])
+            lunch_ingredients = meal_plan.get("lunch", {}).get("ingredients", [])
+            dinner_ingredients = meal_plan.get("dinner", {}).get("ingredients", [])
+            
+            # 모든 재료를 소문자로 변환하여 비교
+            all_ingredients = []
+            for ingredients in [breakfast_ingredients, lunch_ingredients, dinner_ingredients]:
+                all_ingredients.extend([ing.lower() for ing in ingredients])
+            
+            # 중복 재료 찾기 (2번 이상 나오는 재료)
+            duplicates = []
+            for ingredient in set(all_ingredients):
+                if all_ingredients.count(ingredient) >= 2:
+                    duplicates.append(ingredient)
+            
+            return len(duplicates) == 0  # 중복이 없으면 True
+        
+        # 평균 점수 70점 이상 AND 최소 2끼는 완벽한 키토 비율 AND 재료 중복 없음
+        avg_score = (breakfast_score + lunch_score + dinner_score) / 3
+        ratio_count = sum([breakfast_ratio_ok, lunch_ratio_ok, dinner_ratio_ok])
+        no_duplicates = check_ingredient_duplicates(meal_plan)
+        retry_count = 0
+        
+        while (avg_score < 70 or ratio_count < 2 or not no_duplicates) and retry_count < 2:
+            duplicate_msg = "" if no_duplicates else " (재료 중복 있음)"
+            print(f"키토 기준 미달 (평균 {avg_score:.1f}점, 완벽한 비율 {ratio_count}/3끼{duplicate_msg}). 재생성 중... ({retry_count + 1}/2)")
+            meal_plan = await gpt_service.recommend_meal_plan(preferences)
+            if "error" in meal_plan:
+                break
+                
+            breakfast_score = calculate_keto_score(meal_plan.get("breakfast", {}))
+            lunch_score = calculate_keto_score(meal_plan.get("lunch", {}))
+            dinner_score = calculate_keto_score(meal_plan.get("dinner", {}))
+            avg_score = (breakfast_score + lunch_score + dinner_score) / 3
+            
+            breakfast_ratio_ok = check_keto_ratio(meal_plan.get("breakfast", {}))
+            lunch_ratio_ok = check_keto_ratio(meal_plan.get("lunch", {}))
+            dinner_ratio_ok = check_keto_ratio(meal_plan.get("dinner", {}))
+            ratio_count = sum([breakfast_ratio_ok, lunch_ratio_ok, dinner_ratio_ok])
+            
+            no_duplicates = check_ingredient_duplicates(meal_plan)
+            
+            retry_count += 1
+        
         return {
             "meal_plan": meal_plan,
             "user_preferences": preferences,

@@ -8,16 +8,21 @@ interface NutritionChartProps {
 }
 
 export default function NutritionChart({ nutrition, className }: NutritionChartProps) {
-  const totalMacros = nutrition.carbs + nutrition.protein + nutrition.fat
+  // 칼로리 기준으로 비율 계산 (키토 다이어트 표준)
+  const carbsCalories = nutrition.carbs * 4
+  const proteinCalories = nutrition.protein * 4  
+  const fatCalories = nutrition.fat * 9
+  const totalCalories = carbsCalories + proteinCalories + fatCalories
   
-  const carbsPercent = totalMacros > 0 ? (nutrition.carbs / totalMacros) * 100 : 0
-  const proteinPercent = totalMacros > 0 ? (nutrition.protein / totalMacros) * 100 : 0
-  const fatPercent = totalMacros > 0 ? (nutrition.fat / totalMacros) * 100 : 0
+  const carbsPercent = totalCalories > 0 ? (carbsCalories / totalCalories) * 100 : 0
+  const proteinPercent = totalCalories > 0 ? (proteinCalories / totalCalories) * 100 : 0
+  const fatPercent = totalCalories > 0 ? (fatCalories / totalCalories) * 100 : 0
 
   const macroData = [
     {
       name: '탄수화물',
       value: nutrition.carbs,
+      calories: carbsCalories,
       percent: carbsPercent,
       color: 'bg-red-500',
       ideal: '≤10%'
@@ -25,6 +30,7 @@ export default function NutritionChart({ nutrition, className }: NutritionChartP
     {
       name: '단백질',
       value: nutrition.protein,
+      calories: proteinCalories,
       percent: proteinPercent,
       color: 'bg-blue-500',
       ideal: '~20%'
@@ -32,6 +38,7 @@ export default function NutritionChart({ nutrition, className }: NutritionChartP
     {
       name: '지방',
       value: nutrition.fat,
+      calories: fatCalories,
       percent: fatPercent,
       color: 'bg-green-500',
       ideal: '~70%'
@@ -44,7 +51,7 @@ export default function NutritionChart({ nutrition, className }: NutritionChartP
         {/* 칼로리 정보 */}
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
           <div className="text-center">
-            <p className="text-2xl font-bold text-purple-700">{nutrition.calories}</p>
+            <p className="text-2xl font-bold text-purple-700">{totalCalories.toFixed(0)}</p>
             <p className="text-sm text-purple-600">칼로리</p>
           </div>
         </div>
@@ -52,7 +59,7 @@ export default function NutritionChart({ nutrition, className }: NutritionChartP
         {/* 키토 비율 */}
         <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
           <div className="text-center">
-            <p className="text-2xl font-bold text-green-700">{nutrition.ketoRatio.toFixed(1)}%</p>
+            <p className="text-2xl font-bold text-green-700">{fatPercent.toFixed(1)}%</p>
             <p className="text-sm text-green-600">지방 비율</p>
           </div>
         </div>
@@ -96,7 +103,9 @@ export default function NutritionChart({ nutrition, className }: NutritionChartP
                 <p className="font-semibold text-gray-900">
                   {macro.value}g ({macro.percent.toFixed(1)}%)
                 </p>
-                <p className="text-xs text-gray-500">이상적: {macro.ideal}</p>
+                <p className="text-xs text-gray-500">
+                  {macro.calories.toFixed(0)}kcal • 이상적: {macro.ideal}
+                </p>
               </div>
             </div>
           ))}
@@ -104,19 +113,24 @@ export default function NutritionChart({ nutrition, className }: NutritionChartP
 
         {/* 키토 상태 평가 */}
         <div className="mt-4 p-4 rounded-lg border-2 border-dashed">
-          {fatPercent >= 70 && carbsPercent <= 10 && proteinPercent >= 15 && proteinPercent <= 25 ? (
+          {fatPercent >= 68 && carbsPercent <= 12 && proteinPercent >= 18 && proteinPercent <= 25 ? (
             <div className="text-center text-green-700 bg-green-50">
               <p className="font-semibold">🎉 완벽한 키토 비율입니다!</p>
-              <p className="text-sm">이상적인 탄10%/단20%/지70% 비율에 근접해요</p>
+              <p className="text-sm">이상적인 탄10%/단20%/지70% 비율을 달성했어요</p>
             </div>
-          ) : fatPercent >= 65 && carbsPercent <= 15 ? (
+          ) : fatPercent >= 65 && carbsPercent <= 15 && proteinPercent >= 15 && proteinPercent <= 30 ? (
             <div className="text-center text-yellow-700 bg-yellow-50">
-              <p className="font-semibold">⚡ 괜찮은 키토 비율이에요</p>
-              <p className="text-sm">탄수화물을 10% 이하로, 지방을 70% 이상으로 조정해보세요</p>
+              <p className="font-semibold">⚡ 좋은 키토 비율이에요</p>
+              <p className="text-sm">거의 완벽한 키토 식단입니다</p>
+            </div>
+          ) : fatPercent >= 60 && carbsPercent <= 20 ? (
+            <div className="text-center text-orange-700 bg-orange-50">
+              <p className="font-semibold">🔧 키토 비율 조정 필요</p>
+              <p className="text-sm">지방 ↑, 탄수화물 ↓ 조정하면 더 좋아요</p>
             </div>
           ) : (
             <div className="text-center text-red-700 bg-red-50">
-              <p className="font-semibold">💪 키토 비율 개선이 필요해요</p>
+              <p className="font-semibold">💪 키토 비율 개선 필요</p>
               <p className="text-sm">목표: 탄수화물 ≤10%, 단백질 ~20%, 지방 ~70%</p>
             </div>
           )}

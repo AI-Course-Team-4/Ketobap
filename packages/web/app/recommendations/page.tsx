@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { GPTMealsAPI, useUserStore, GPTMealRecommendationResponse } from '@ketobab/shared'
 import GPTMealCard from '@/components/GPTMealCard'
 import NutritionChart from '@/components/ui/NutritionChart'
+import NutritionGuide from '@/components/NutritionGuide'
 import TestLogger from '@/components/TestLogger'
 import { RefreshCw, ArrowLeft, AlertCircle, Utensils, TrendingUp, Brain } from 'lucide-react'
 import Link from 'next/link'
@@ -222,6 +223,9 @@ export default function RecommendationsPage() {
                 <NutritionChart nutrition={dailyNutrition} />
               </div>
             )}
+
+            {/* Nutrition Guide */}
+            <NutritionGuide />
 
             {/* GPT Meal Recommendations */}
             <div className="grid lg:grid-cols-3 gap-6 mb-8">

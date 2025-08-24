@@ -1,7 +1,7 @@
 'use client'
 
 import { GPTMealItem, GPTMealsAPI } from '@ketobab/shared'
-import { Clock, ChefHat, Calculator, Utensils } from 'lucide-react'
+import { Clock, ChefHat, Calculator, Utensils, ThumbsUp, Check, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react'
 
 interface GPTMealCardProps {
   mealItem: GPTMealItem
@@ -37,6 +37,57 @@ export default function GPTMealCard({ mealItem, mealType, className = '' }: GPTM
   const typeInfo = mealTypeInfo[mealType]
   const ketoScore = GPTMealsAPI.calculateKetoScore(mealItem)
   const calories = GPTMealsAPI.calculateCalories(mealItem)
+  const nutritionStatus = GPTMealsAPI.evaluateNutritionStatus(mealItem)
+  
+
+
+  // 상태에 따른 색상과 아이콘 반환
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case 'perfect':
+        return { 
+          textColor: 'text-green-600', 
+          valueColor: 'text-green-600',
+          icon: ThumbsUp, 
+          iconColor: 'text-green-600' 
+        }
+      case 'good':
+        return { 
+          textColor: 'text-green-500', 
+          valueColor: 'text-green-500',
+          icon: Check, 
+          iconColor: 'text-green-500' 
+        }
+      case 'warning':
+        return { 
+          textColor: 'text-orange-600', 
+          valueColor: 'text-orange-600',
+          icon: AlertTriangle, 
+          iconColor: 'text-orange-600' 
+        }
+      case 'high':
+        return { 
+          textColor: 'text-red-600', 
+          valueColor: 'text-red-600',
+          icon: TrendingUp, 
+          iconColor: 'text-red-600' 
+        }
+      case 'low':
+        return { 
+          textColor: 'text-red-600', 
+          valueColor: 'text-red-600',
+          icon: TrendingDown, 
+          iconColor: 'text-red-600' 
+        }
+      default:
+        return { 
+          textColor: 'text-gray-600', 
+          valueColor: 'text-gray-600',
+          icon: Calculator, 
+          iconColor: 'text-gray-600' 
+        }
+    }
+  }
 
   return (
     <div className={`bg-white rounded-2xl shadow-lg border overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${typeInfo.borderColor} ${className}`}>
@@ -72,20 +123,65 @@ export default function GPTMealCard({ mealItem, mealType, className = '' }: GPTM
           <div className="text-center">
             <div className="text-sm text-gray-500 mb-1">칼로리</div>
             <div className="font-semibold text-gray-900">{calories}</div>
+            <div className="h-4 mt-1"></div>
           </div>
+          
+          {/* 탄수화물 */}
           <div className="text-center border-l border-gray-200 pl-3">
             <div className="text-sm text-gray-500 mb-1">탄수화물</div>
-            <div className="font-semibold text-orange-600">{mealItem.carbs}</div>
+            <div className={`font-semibold ${getStatusDisplay(nutritionStatus.carbs.status).valueColor}`}>
+              {mealItem.carbs}
+            </div>
+            <div className="h-4 flex items-center justify-center mt-1">
+              {(() => {
+                const { icon: Icon, iconColor } = getStatusDisplay(nutritionStatus.carbs.status)
+                return (
+                  <div className="flex items-center justify-center">
+                    <Icon className={`w-3 h-3 ${iconColor}`} />
+                  </div>
+                )
+              })()}
+            </div>
           </div>
+          
+          {/* 단백질 */}
           <div className="text-center border-l border-gray-200 pl-3">
             <div className="text-sm text-gray-500 mb-1">단백질</div>
-            <div className="font-semibold text-blue-600">{mealItem.protein}</div>
+            <div className={`font-semibold ${getStatusDisplay(nutritionStatus.protein.status).valueColor}`}>
+              {mealItem.protein}
+            </div>
+            <div className="h-4 flex items-center justify-center mt-1">
+              {(() => {
+                const { icon: Icon, iconColor } = getStatusDisplay(nutritionStatus.protein.status)
+                return (
+                  <div className="flex items-center justify-center">
+                    <Icon className={`w-3 h-3 ${iconColor}`} />
+                  </div>
+                )
+              })()}
+            </div>
           </div>
+          
+          {/* 지방 */}
           <div className="text-center border-l border-gray-200 pl-3">
             <div className="text-sm text-gray-500 mb-1">지방</div>
-            <div className="font-semibold text-green-600">{mealItem.fat}</div>
+            <div className={`font-semibold ${getStatusDisplay(nutritionStatus.fat.status).valueColor}`}>
+              {mealItem.fat}
+            </div>
+            <div className="h-4 flex items-center justify-center mt-1">
+              {(() => {
+                const { icon: Icon, iconColor } = getStatusDisplay(nutritionStatus.fat.status)
+                return (
+                  <div className="flex items-center justify-center">
+                    <Icon className={`w-3 h-3 ${iconColor}`} />
+                  </div>
+                )
+              })()}
+            </div>
           </div>
         </div>
+
+
 
         {/* 재료 */}
         <div className="mb-6">

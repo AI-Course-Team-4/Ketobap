@@ -36,7 +36,7 @@ export class GPTMealsAPI {
         return null;
       }
 
-      const result = await response.json();
+      const result = await response.json() as any;
       
       // 응답이 올바른 형식인지 확인
       if (result && result.meal_plan && 
@@ -57,6 +57,7 @@ export class GPTMealsAPI {
 
   /**
    * GPT 식단 추천 결과에서 키토 점수를 계산합니다
+   * 키토 다이어트 기준: 지방 70-75%, 단백질 20-25%, 탄수화물 5-10%
    */
   static calculateKetoScore(mealItem: { carbs: string; fat: string; protein: string }): number {
     try {
@@ -71,22 +72,43 @@ export class GPTMealsAPI {
 
       const fatRatio = (fat * 9) / totalCalories;
       const carbRatio = (carbs * 4) / totalCalories;
+      const proteinRatio = (protein * 4) / totalCalories;
 
-      // 키토 점수 계산 (지방 비율이 높고 탄수화물 비율이 낮을수록 높은 점수)
       let score = 0;
       
-      // 지방 비율 점수 (70% 이상이면 만점)
-      if (fatRatio >= 0.7) {
-        score += 50;
+      // 1. 지방 비율 점수 (40점 만점) - 70-75%가 이상적
+      if (fatRatio >= 0.7 && fatRatio <= 0.8) {
+        score += 40; // 이상적 범위
+      } else if (fatRatio >= 0.65 && fatRatio <= 0.85) {
+        score += 35; // 허용 범위
+      } else if (fatRatio >= 0.6) {
+        score += Math.max(0, 30 - Math.abs(fatRatio - 0.725) * 100);
       } else {
-        score += fatRatio * 71.4; // 70%일 때 50점
+        score += fatRatio * 50; // 60% 미만은 대폭 감점
       }
       
-      // 탄수화물 비율 점수 (10% 이하면 만점)
-      if (carbRatio <= 0.1) {
-        score += 50;
+      // 2. 탄수화물 비율 점수 (35점 만점) - 10% 이하가 필수
+      if (carbRatio <= 0.05) {
+        score += 35; // 5% 이하 완벽
+      } else if (carbRatio <= 0.1) {
+        score += 30; // 10% 이하 양호
+      } else if (carbRatio <= 0.15) {
+        score += 20; // 15% 이하 보통
       } else {
-        score += Math.max(0, 50 - (carbRatio - 0.1) * 500); // 10%를 넘으면 감점
+        score += Math.max(0, 20 - (carbRatio - 0.15) * 200); // 15% 초과 시 급격히 감점
+      }
+
+      // 3. 단백질 비율 점수 (25점 만점) - 20-25%가 이상적
+      if (proteinRatio >= 0.2 && proteinRatio <= 0.25) {
+        score += 25; // 이상적 범위
+      } else if (proteinRatio >= 0.15 && proteinRatio <= 0.3) {
+        score += 20; // 허용 범위
+      } else if (proteinRatio > 0.3) {
+        // 단백질이 너무 많으면 감점 (키토시스 방해)
+        score += Math.max(0, 15 - (proteinRatio - 0.3) * 100);
+      } else {
+        // 단백질이 너무 적어도 감점
+        score += proteinRatio * 80;
       }
 
       return Math.round(Math.max(0, Math.min(100, score)));
@@ -109,6 +131,98 @@ export class GPTMealsAPI {
     } catch (error) {
       console.error('칼로리 계산 실패:', error);
       return 0;
+    }
+  }
+
+  /**
+   * 영양소별 키토 적합성을 평가하여 색상 상태를 반환합니다
+   */
+  static evaluateNutritionStatus(mealItem: { carbs: string; fat: string; protein: string }) {
+    try {
+      const carbs = parseFloat(mealItem.carbs.replace(/[^\d.]/g, '')) || 0;
+      const fat = parseFloat(mealItem.fat.replace(/[^\d.]/g, '')) || 0;
+      const protein = parseFloat(mealItem.protein.replace(/[^\d.]/g, '')) || 0;
+
+      const totalCalories = (carbs * 4) + (fat * 9) + (protein * 4);
+      
+      if (totalCalories === 0) {
+        return {
+          carbs: { status: 'unknown', message: '정보 없음' },
+          fat: { status: 'unknown', message: '정보 없음' },
+          protein: { status: 'unknown', message: '정보 없음' }
+        };
+      }
+
+      const fatRatio = (fat * 9) / totalCalories;
+      const carbRatio = (carbs * 4) / totalCalories;
+      const proteinRatio = (protein * 4) / totalCalories;
+
+      // 지방 평가
+      let fatStatus, fatMessage;
+      if (fatRatio >= 0.72 && fatRatio <= 0.78) {
+        fatStatus = 'perfect';
+        fatMessage = '이상적';
+      } else if (fatRatio >= 0.68 && fatRatio <= 0.82) {
+        fatStatus = 'good';
+        fatMessage = '양호';
+      } else if (fatRatio >= 0.60 && fatRatio <= 0.85) {
+        fatStatus = 'warning';
+        fatMessage = '주의';
+      } else if (fatRatio < 0.60) {
+        fatStatus = 'low';
+        fatMessage = '부족';
+      } else {
+        fatStatus = 'high';
+        fatMessage = '과다';
+      }
+
+      // 탄수화물 평가
+      let carbStatus, carbMessage;
+      if (carbRatio <= 0.03) {
+        carbStatus = 'perfect';
+        carbMessage = '이상적';
+      } else if (carbRatio <= 0.08) {
+        carbStatus = 'good';
+        carbMessage = '양호';
+      } else if (carbRatio <= 0.15) {
+        carbStatus = 'warning';
+        carbMessage = '주의';
+      } else {
+        carbStatus = 'high';
+        carbMessage = '과다';
+      }
+
+      // 단백질 평가
+      let proteinStatus, proteinMessage;
+      if (proteinRatio >= 0.22 && proteinRatio <= 0.25) {
+        proteinStatus = 'perfect';
+        proteinMessage = '이상적';
+      } else if (proteinRatio >= 0.18 && proteinRatio <= 0.28) {
+        proteinStatus = 'good';
+        proteinMessage = '양호';
+      } else if (proteinRatio >= 0.15 && proteinRatio <= 0.32) {
+        proteinStatus = 'warning';
+        proteinMessage = '주의';
+      } else if (proteinRatio < 0.15) {
+        proteinStatus = 'low';
+        proteinMessage = '부족';
+      } else {
+        proteinStatus = 'high';
+        proteinMessage = '과다';
+      }
+
+      return {
+        carbs: { status: carbStatus, message: carbMessage, ratio: Math.round(carbRatio * 100) },
+        fat: { status: fatStatus, message: fatMessage, ratio: Math.round(fatRatio * 100) },
+        protein: { status: proteinStatus, message: proteinMessage, ratio: Math.round(proteinRatio * 100) }
+      };
+    } catch (error) {
+      console.error('영양소 상태 평가 실패:', error);
+      return {
+        carbs: { status: 'unknown', message: '계산 오류' },
+        fat: { status: 'unknown', message: '계산 오류' },
+        protein: { status: 'unknown', message: '계산 오류' }
+      };
     }
   }
 }
