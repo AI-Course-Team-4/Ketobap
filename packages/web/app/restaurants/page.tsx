@@ -21,12 +21,12 @@ export default function RestaurantsPage() {
   const [shownRestaurantIds, setShownRestaurantIds] = useState<Set<number>>(new Set())
 
   // 로컬 스토리지에서 이전에 보여준 식당 ID들 불러오기
-  const loadShownRestaurants = () => {
+  const loadShownRestaurants = (): Set<number> => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(SHOWN_RESTAURANTS_KEY)
       if (stored) {
         try {
-          const ids = JSON.parse(stored)
+          const ids: number[] = JSON.parse(stored)
           setShownRestaurantIds(new Set(ids))
           return new Set(ids)
         } catch (e) {
@@ -35,7 +35,7 @@ export default function RestaurantsPage() {
         }
       }
     }
-    return new Set()
+    return new Set<number>()
   }
 
   // 로컬 스토리지에 보여준 식당 ID들 저장
@@ -110,7 +110,7 @@ export default function RestaurantsPage() {
       setDisplayedRestaurants(selectedRestaurants)
       
       // 선택된 식당 ID들을 보여준 목록에 추가
-      const newShownIds = new Set([...currentShownIds, ...selectedRestaurants.map(r => r.id)])
+      const newShownIds = new Set([...Array.from(currentShownIds), ...selectedRestaurants.map(r => r.id)])
       setShownRestaurantIds(newShownIds)
       saveShownRestaurants(newShownIds)
       
@@ -131,7 +131,7 @@ export default function RestaurantsPage() {
     setDisplayedRestaurants(selectedRestaurants)
     
     // 선택된 식당 ID들을 보여준 목록에 추가
-    const newShownIds = new Set([...shownRestaurantIds, ...selectedRestaurants.map(r => r.id)])
+    const newShownIds = new Set([...Array.from(shownRestaurantIds), ...selectedRestaurants.map(r => r.id)])
     setShownRestaurantIds(newShownIds)
     saveShownRestaurants(newShownIds)
   }
