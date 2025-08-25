@@ -98,17 +98,23 @@ export class GPTMealsAPI {
         score += Math.max(0, 20 - (carbRatio - 0.15) * 200); // 15% 초과 시 급격히 감점
       }
 
-      // 3. 단백질 비율 점수 (25점 만점) - 20-25%가 이상적
-      if (proteinRatio >= 0.2 && proteinRatio <= 0.25) {
-        score += 25; // 이상적 범위
-      } else if (proteinRatio >= 0.15 && proteinRatio <= 0.3) {
-        score += 20; // 허용 범위
-      } else if (proteinRatio > 0.3) {
-        // 단백질이 너무 많으면 감점 (키토시스 방해)
-        score += Math.max(0, 15 - (proteinRatio - 0.3) * 100);
+      // 3. 단백질 비율 점수 (25점 만점) - 20-22%가 이상적
+      if (proteinRatio >= 0.2 && proteinRatio <= 0.22) {
+        score += 25; // 이상적 범위 (20-22%)
+      } else if (proteinRatio >= 0.18 && proteinRatio < 0.2) {
+        score += 23; // 약간 부족 (18-20%)
+      } else if (proteinRatio > 0.22 && proteinRatio <= 0.25) {
+        score += 22; // 약간 높음 (22-25%)
+      } else if (proteinRatio > 0.25 && proteinRatio <= 0.28) {
+        score += 18; // 높음 (25-28%)
+      } else if (proteinRatio >= 0.15 && proteinRatio < 0.18) {
+        score += 20; // 부족 (15-18%)
+      } else if (proteinRatio > 0.28) {
+        // 단백질이 너무 많으면 급격히 감점 (키토시스 방해)
+        score += Math.max(5, 15 - (proteinRatio - 0.28) * 150);
       } else {
-        // 단백질이 너무 적어도 감점
-        score += proteinRatio * 80;
+        // 단백질이 매우 적으면 감점 (15% 미만)
+        score += Math.max(10, proteinRatio * 80);
       }
 
       return Math.round(Math.max(0, Math.min(100, score)));
