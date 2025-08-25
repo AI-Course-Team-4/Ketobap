@@ -5,6 +5,8 @@
 
 from .base_prompts import MenuAnalysisPrompt, MealPlanPrompt
 from typing import Dict, Any
+from .individual_prompts.prompts_jch import JCHMenuAnalysisPrompt, JCHMealPlanPrompt
+
 
 class ImprovedMenuAnalysisPrompt(MenuAnalysisPrompt):
     """개선된 메뉴 분석 프롬프트 - 예시용"""
@@ -74,6 +76,11 @@ TEAM_PROMPTS = {
     }
     # 팀원들이 여기에 추가: "김철수": {...}, "이영희": {...}
 }
+TEAM_PROMPTS["jch"] = {
+    "menu_analysis": JCHMenuAnalysisPrompt(),
+    "meal_plan": JCHMealPlanPrompt()
+}
+
 
 # 웹서버 테스트용 프롬프트 (실제 테스트할 때 사용)
 try:
