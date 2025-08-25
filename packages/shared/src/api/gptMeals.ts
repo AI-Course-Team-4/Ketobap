@@ -192,18 +192,18 @@ export class GPTMealsAPI {
         carbMessage = '과다';
       }
 
-      // 단백질 평가
+      // 단백질 평가 (키토 다이어트 기준: 20% 내외 이상적)
       let proteinStatus, proteinMessage;
-      if (proteinRatio >= 0.22 && proteinRatio <= 0.25) {
+      if (proteinRatio >= 0.19 && proteinRatio <= 0.22) {
         proteinStatus = 'perfect';
         proteinMessage = '이상적';
-      } else if (proteinRatio >= 0.18 && proteinRatio <= 0.28) {
+      } else if (proteinRatio >= 0.17 && proteinRatio <= 0.25) {
         proteinStatus = 'good';
         proteinMessage = '양호';
-      } else if (proteinRatio >= 0.15 && proteinRatio <= 0.32) {
+      } else if (proteinRatio >= 0.15 && proteinRatio <= 0.28) {
         proteinStatus = 'warning';
         proteinMessage = '주의';
-      } else if (proteinRatio < 0.15) {
+      } else if (proteinRatio < 0.17) {
         proteinStatus = 'low';
         proteinMessage = '부족';
       } else {
