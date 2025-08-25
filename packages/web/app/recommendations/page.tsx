@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { GPTMealsAPI, useUserStore, GPTMealRecommendationResponse } from '@ketobab/shared'
+import { GPTMealsAPI, useUserStore, GPTMealRecommendationResponse } from '@Ketobap/shared'
 import GPTMealCard from '@/components/GPTMealCard'
 import NutritionChart from '@/components/ui/NutritionChart'
 import NutritionGuide from '@/components/NutritionGuide'

@@ -1,6 +1,6 @@
 'use client'
 
-import { RestaurantMenu, RestaurantsAPI } from '@ketobab/shared'
+import { RestaurantMenu, RestaurantsAPI } from '@Ketobap/shared'
 import KetoScore from './ui/KetoScore'
 import { MapPin, Phone, ExternalLink, Star } from 'lucide-react'
 

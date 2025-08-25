@@ -52,5 +52,5 @@ Host: db.qrxmkzrjbqmumzzpgdqr.supabase.co
 Port: 5432
 Database: postgres
 Username: postgres
-Password: ketobap_db
+Password: Ketobap_db
 ```

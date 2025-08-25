@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { RestaurantsAPI, useUserStore, RestaurantMenu } from '@ketobab/shared'
+import { RestaurantsAPI, useUserStore, RestaurantMenu } from '@Ketobap/shared'
 import RestaurantCard from '@/components/RestaurantCard'
 import { MapPin, Filter, RefreshCw, AlertCircle, Utensils, Star } from 'lucide-react'
 import Link from 'next/link'

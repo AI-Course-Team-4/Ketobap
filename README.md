@@ -1,4 +1,4 @@
-# 🥑 KetoBab - AI 기반 키토 식단 & 외식 추천 서비스
+# 🥑 Ketobap - AI 기반 키토 식단 & 외식 추천 서비스
 
 개인의 선호도, 알레르기 정보를 기반으로 맞춤형 키토 식단을 추천하고, 강남 지역의 키토 친화적인 음식점을 안내하는 AI 기반 크로스플랫폼 서비스입니다.
 
@@ -13,7 +13,7 @@
 ## 🏗️ 프로젝트 구조
 
 ```
-ketobab/
+Ketobap/
 ├── packages/
 │   ├── shared/           # 웹/앱 공통 로직
 │   │   ├── api/         # SQLite API
@@ -56,7 +56,7 @@ ketobab/
 
 ```bash
 git clone https://github.com/soohwan93/miniProject-Team4-AICourse.git
-cd ketobab
+cd Ketobap
 ```
 
 ### 2. 의존성 설치
@@ -72,8 +72,8 @@ npm install
 
 ```bash
 # sqlite3 실행 예시
-sqlite3 ketobab.db < database/schema.sql
-sqlite3 ketobab.db < database/seed.sql
+sqlite3 Ketobap.db < database/schema.sql
+sqlite3 Ketobap.db < database/seed.sql
 ```
 
 ### 4. 환경 변수 설정
@@ -86,7 +86,7 @@ cp env.example .env.local
 `.env.local` 파일을 편집하여 다음 값들을 설정:
 
 ```env
-DATABASE_URL=file:../database/ketobab.db
+DATABASE_URL=file:../database/Ketobap.db
 HUGGING_FACE_TOKEN=your-hugging-face-token  # 선택사항
 ```
 
@@ -588,4 +588,4 @@ packages/
 
 ---
 
-**KetoBab** - 건강한 키토 라이프를 위한 똑똑한 선택 🥑✨
+**Ketobap** - 건강한 키토 라이프를 위한 똑똑한 선택 🥑✨

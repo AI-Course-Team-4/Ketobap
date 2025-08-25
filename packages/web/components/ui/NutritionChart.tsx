@@ -1,6 +1,6 @@
 'use client'
 
-import { NutritionInfo } from '@ketobab/shared'
+import { NutritionInfo } from '@Ketobap/shared'
 
 interface NutritionChartProps {
   nutrition: NutritionInfo

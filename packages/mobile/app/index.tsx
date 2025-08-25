@@ -44,7 +44,7 @@ export default function HomePage() {
               <Text className="text-2xl">🥑</Text>
             </View>
             <View>
-              <Text className="text-2xl font-bold text-gray-900">KetoBab</Text>
+              <Text className="text-2xl font-bold text-gray-900">Ketobap</Text>
               <Text className="text-sm text-gray-600">AI 키토 식단 추천</Text>
             </View>
           </View>
@@ -87,7 +87,7 @@ export default function HomePage() {
         {/* Features Section */}
         <View className="px-6 pb-8">
           <Text className="text-2xl font-bold text-gray-900 mb-2 text-center">
-            왜 KetoBab을 선택해야 할까요?
+            왜 Ketobap을 선택해야 할까요?
           </Text>
           <Text className="text-gray-600 text-center mb-8">
             AI 기술과 영양학을 결합한 스마트한 키토 다이어트 솔루션

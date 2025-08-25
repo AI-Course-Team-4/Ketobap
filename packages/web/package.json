@@ -1,5 +1,5 @@
 {
-  "name": "@ketobab/web",
+  "name": "@Ketobap/web",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -14,7 +14,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@ketobab/shared": "file:../shared",
+    "@Ketobap/shared": "file:../shared",
     "next": "^14.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

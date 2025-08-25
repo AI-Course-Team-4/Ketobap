@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@ketobab/shared'],
+  transpilePackages: ['@Ketobap/shared'],
   
   // React Strict Mode 비활성화 (개발 모드에서 이중 실행 방지)
   reactStrictMode: false,

@@ -3,10 +3,10 @@ import Link from 'next/link'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'KetoBab - AI 키토 식단 추천',
+  title: 'Ketobap - AI 키토 식단 추천',
   description: '개인 맞춤형 키토 식단과 강남 키토 친화 음식점을 AI로 추천해드립니다',
   keywords: '키토, 다이어트, 식단, 추천, AI, 강남, 음식점',
-  authors: [{ name: 'KetoBab Team' }],
+  authors: [{ name: 'Ketobap Team' }],
 }
 
 export const viewport = {
@@ -32,7 +32,7 @@ export default function RootLayout({
                     <span className="text-white font-bold text-lg">🥑</span>
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-gradient">KetoBab</h1>
+                    <h1 className="text-2xl font-bold text-gradient">Ketobap</h1>
                     <p className="text-sm text-gray-600">AI 키토 식단 추천</p>
                   </div>
                 </Link>
@@ -54,7 +54,7 @@ export default function RootLayout({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center">
                 <p className="text-gray-400">
-                  © 2025 KetoBab. AI 기반 키토 식단 추천 서비스
+                  © 2025 Ketobap. AI 기반 키토 식단 추천 서비스
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
                   건강한 키토 라이프를 위한 똑똑한 선택

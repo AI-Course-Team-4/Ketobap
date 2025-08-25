@@ -71,7 +71,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              왜 KetoBab을 선택해야 할까요?
+              왜 Ketobap을 선택해야 할까요?
             </h2>
             <p className="text-lg text-gray-600">
               AI 기술과 영양학을 결합한 스마트한 키토 다이어트 솔루션

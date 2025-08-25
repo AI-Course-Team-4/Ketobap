@@ -1,6 +1,6 @@
 'use client'
 
-import { GPTMealItem, GPTMealsAPI } from '@ketobab/shared'
+import { GPTMealItem, GPTMealsAPI } from '@Ketobap/shared'
 import { Clock, ChefHat, Calculator, Utensils, ThumbsUp, Check, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react'
 
 interface GPTMealCardProps {

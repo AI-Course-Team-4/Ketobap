@@ -1,6 +1,6 @@
 'use client'
 
-import { Food } from '@ketobab/shared'
+import { Food } from '@Ketobap/shared'
 import KetoScore from './ui/KetoScore'
 import { Clock, Utensils } from 'lucide-react'
 

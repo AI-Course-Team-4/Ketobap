@@ -3,7 +3,7 @@
 // import { SafeAreaView } from 'react-native-safe-area-context';
 // import { useRouter } from 'expo-router';
 // import { Ionicons } from '@expo/vector-icons';
-// import { useUserStore, UserPreferences } from '@ketobab/shared';
+// import { useUserStore, UserPreferences } from '@Ketobap/shared';
 
 // const FOOD_OPTIONS = [
 //   { value: '아보카도', label: '🥑 아보카도' },

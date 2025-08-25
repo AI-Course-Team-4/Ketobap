@@ -4,7 +4,7 @@
     "strict": true,
     "paths": {
       "@/*": ["./*"],
-      "@ketobab/shared": ["../shared/src"]
+      "@Ketobap/shared": ["../shared/src"]
     }
   }
 }

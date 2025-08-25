@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useUserStore } from '@ketobab/shared'
-import { UserPreferences } from '@ketobab/shared'
+import { useUserStore } from '@Ketobap/shared'
+import { UserPreferences } from '@Ketobap/shared'
 import MultiSelect from '@/components/ui/MultiSelect'
 import { ChevronRight, Info, Heart, X, AlertTriangle } from 'lucide-react'
 

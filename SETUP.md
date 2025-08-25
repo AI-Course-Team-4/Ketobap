@@ -1,4 +1,4 @@
-# 🚀 KetoBab 프로젝트 설정 가이드
+# 🚀 Ketobap 프로젝트 설정 가이드
 
 ## 📋 사전 준비사항
 
@@ -14,8 +14,8 @@
 
 ```bash
 # 프로젝트 클론
-git clone https://github.com/your-username/ketobab.git
-cd ketobab
+git clone https://github.com/your-username/Ketobap.git
+cd Ketobap
 
 # 루트 의존성 설치
 npm install
@@ -32,7 +32,7 @@ cd ../..
 #### 2.1 Supabase 프로젝트 생성
 1. [Supabase](https://supabase.com)에 로그인
 2. "New Project" 클릭
-3. 프로젝트 이름: `ketobab`
+3. 프로젝트 이름: `Ketobap`
 4. 데이터베이스 비밀번호 설정
 5. 지역 선택 (가급적 Seoul)
 
